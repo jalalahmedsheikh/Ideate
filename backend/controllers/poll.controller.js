@@ -45,7 +45,7 @@ export const getAllPolls = async (req, res) => {
     try {
         const polls = await Poll.find()
             .sort({ createdAt: -1 })
-            .populate({ path: "author", select: "username profileImage" });
+            .populate({ path: "creator", select: "username profileImage" });
 
         return res.status(200).json({
             success: true,
@@ -209,21 +209,3 @@ export const savePoll = async (req, res) => {
         return res.status(500).json({ success: false, message: "Internal server error." });
     }
 };
-
-
-// -------------------------Key Features------------------------
-// CRUD operations for polls:
-
-// createPoll
-// getAllPolls
-// getUserPolls
-// Interactions with polls:
-
-// likePoll
-// dislikePoll
-// savePoll
-// Comments on polls:
-
-// addCommentToPoll
-// getCommentsOfPoll
-// Let me know if you'd like any further adjustments or additional functionality!

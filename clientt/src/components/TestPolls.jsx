@@ -1,29 +1,44 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';  // Import axios for API calls
+import './App.css'; // Optional, for global styles (you can keep this file for styling)
 
-function Home() {
-  const [Polls, setPolls] = useState([]);
+function App() {
+  const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [votedPolls, setVotedPolls] = useState({});
   const [pollResults, setPollResults] = useState({});
 
-  // Fetch Poll Data from API
+  // Mock Poll Data (Replace with API call)
   useEffect(() => {
-    axios
-      .get('http://localhost:8000/poll/allpolls')  // API call to fetch polls
-      .then((response) => {
-        setPolls(response.data.polls);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error('Error fetching polls:', error);
-        setLoading(false);
-      });
+    setTimeout(() => {
+      setPolls([
+        {
+          id: 1,
+          question: 'What is your favorite programming language?',
+          options: [
+            { text: 'JavaScript', votes: 0 },
+            { text: 'Python', votes: 0 },
+            { text: 'C++', votes: 0 },
+            { text: 'Java', votes: 0 },
+          ],
+        },
+        {
+          id: 2,
+          question: 'Which front-end framework do you prefer?',
+          options: [
+            { text: 'React', votes: 0 },
+            { text: 'Vue', votes: 0 },
+            { text: 'Angular', votes: 0 },
+            { text: 'Svelte', votes: 0 },
+          ],
+        },
+      ]);
+      setLoading(false);
+    }, 1000);
   }, []);
 
   // Handle vote logic
   const handleVote = (pollId, selectedOption) => {
-    const updatedPolls = Polls.map((poll) => {
+    const updatedPolls = polls.map((poll) => {
       if (poll.id === pollId) {
         const updatedOptions = poll.options.map((option) => {
           if (option.text === selectedOption) {
@@ -63,24 +78,20 @@ function Home() {
 
   return (
     <div className="app">
-      <h1 className='text-white text-center'>Home</h1>
+      <h1>Poll Feed</h1>
       {loading ? (
         <div>Loading polls...</div>
       ) : (
         <div className="poll-feed">
-          {Array.isArray(Polls) && Polls.length > 0 ? (
-            Polls.map((poll) => (
-              <PollCard
-                key={poll.id}
-                poll={poll}
-                onVote={handleVote}
-                votedOption={votedPolls[poll.id]}
-                pollResults={pollResults[poll.id]}
-              />
-            ))
-          ) : (
-            <div>No polls available.</div>
-          )}
+          {polls.map((poll) => (
+            <PollCard
+              key={poll.id}
+              poll={poll}
+              onVote={handleVote}
+              votedOption={votedPolls[poll.id]}
+              pollResults={pollResults[poll.id]}
+            />
+          ))}
         </div>
       )}
     </div>
@@ -99,7 +110,6 @@ const PollCard = ({ poll, onVote, votedOption, pollResults }) => {
             onVote={() => onVote(poll.id, option.text)}
             voted={votedOption === option.text}
             percentage={pollResults ? pollResults[index].percentage : 0}
-            disabled={votedOption !== undefined} // Disable if an option is already selected
           />
         ))}
       </div>
@@ -111,12 +121,11 @@ const PollCard = ({ poll, onVote, votedOption, pollResults }) => {
   );
 };
 
-const PollOption = ({ option, onVote, voted, percentage, disabled }) => {
+const PollOption = ({ option, onVote, voted, percentage }) => {
   return (
     <div
       className={`poll-option ${voted ? 'selected' : ''}`}
-      onClick={!disabled ? onVote : undefined}
-      style={{ cursor: disabled ? 'not-allowed' : 'pointer' }} // Change cursor if disabled
+      onClick={!voted ? onVote : undefined}
     >
       <span>{option.text}</span>
       {voted && <span className="vote-indicator">✔</span>}
@@ -130,6 +139,7 @@ const style = `
   .app {
     font-family: Arial, sans-serif;
     padding: 20px;
+    background-color: #f4f4f4;
   }
 
   .poll-feed {
@@ -215,4 +225,4 @@ styleSheet.type = "text/css";
 styleSheet.innerText = style;
 document.head.appendChild(styleSheet);
 
-export default Home;
+export default App;
