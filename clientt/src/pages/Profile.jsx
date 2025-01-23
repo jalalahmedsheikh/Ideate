@@ -150,7 +150,6 @@ const Card = styled.div`
 export default function ProfilePage() {
   const [user, setUser] = useState(null);  // Store user data
   const [userPosts, setUserPosts] = useState([]);  // Store posts data
-  const [userPolls, setUserPolls] = useState([]);  // Store posts data
   const [likedPosts, setLikedPosts] = useState([]);  // Store liked posts
   const [taggedPosts, setTaggedPosts] = useState([]);  // Store tagged posts
   const [error, setError] = useState(null);  // Store any error messages
@@ -162,8 +161,6 @@ export default function ProfilePage() {
       try {
         const response = await axiosInstance.get('http://localhost:8000/user/profile');  // API to get user profile
         setUser(response.data.user);  // Set user data in state
-        setUserPosts(response.data.user.posts);  // Set posts data in state
-        setUserPolls(response.data.user.polls);  // Set polls data in state
       } catch (err) {
         if (err.response && err.response.status === 401) {
           setError('You are not authenticated. Please log in.');
@@ -173,7 +170,18 @@ export default function ProfilePage() {
       }
     };
 
+    // Fetch the logged-in user's posts
+    const fetchUserPosts = async () => {
+      try {
+        const response = await axiosInstance.get('http://localhost:8000/post/userpost/all');  // API to get user posts
+        setUserPosts(response.data.posts);  // Set posts data in state
+      } catch (err) {
+        console.error("Error fetching user posts:", err);
+      }
+    };
+
     fetchProfile();
+    fetchUserPosts();  // Fetch posts when the component mounts
   }, []);  // Empty dependency array ensures this runs only once after the component mounts
 
   if (error) {
@@ -181,62 +189,65 @@ export default function ProfilePage() {
   }
 
   if (!user) {
-    return <ThemeProvider theme={theme}>
-      <PageContainer>
-        <GlobalStyles />
-        {/* Profile Header */}
-        <HeaderContainer>
-          <h4 className="mb-5 text-uppercase ">
-            <a href="" className="text-decoration-none text-white text-center">
-              name
-            </a>
-          </h4>
-          <Avatar>
-            <FaUserCircle />
-          </Avatar>
-          <Info>
-            <h4>
+    return (
+      <ThemeProvider theme={theme}>
+        <PageContainer>
+          <GlobalStyles />
+          {/* Profile Header */}
+          <HeaderContainer>
+            <h4 className="mb-5 text-uppercase ">
               <a href="" className="text-decoration-none text-white text-center">
-                @username
+                name
               </a>
             </h4>
-            <p>Bio...</p>
-            <Link to={''}
-              className="w-100 btn rounded-pill text-white border-light px-3"
-              style={{ backgroundColor: theme.primary }}
-            >
-              Edit Profile{" "}
-              <i className="fa-solid fa-pen ms-1" style={{ fontSize: "15px" }}></i>
-            </Link>
-          </Info>
-          <Stats>
-            <a href="" className=" user-select-none text-center text-decoration-none text-white">
-              <span>--</span>
-              <p>Followers</p>
-            </a>
-            <a href="" className=" user-select-none text-center text-decoration-none text-white">
-              <span>--</span>
-              <p>Following</p>
-            </a>
-            <a href="" className=" user-select-none text-center text-decoration-none text-white">
-              <span>--</span>
-              <p>Posts & Polls</p>
-            </a>
-          </Stats>
-        </HeaderContainer>
+            <Avatar>
+              <FaUserCircle />
+            </Avatar>
+            <Info>
+              <h4>
+                <a href="" className="text-decoration-none text-white text-center">
+                  @username
+                </a>
+              </h4>
+              <p>Bio...</p>
+              <Link
+                to={''}
+                className="w-100 btn rounded-pill text-white border-light px-3"
+                style={{ backgroundColor: theme.primary }}
+              >
+                Edit Profile{" "}
+                <i className="fa-solid fa-pen ms-1" style={{ fontSize: "15px" }}></i>
+              </Link>
+            </Info>
+            <Stats>
+              <a href="" className=" user-select-none text-center text-decoration-none text-white">
+                <span>--</span>
+                <p>Followers</p>
+              </a>
+              <a href="" className=" user-select-none text-center text-decoration-none text-white">
+                <span>--</span>
+                <p>Following</p>
+              </a>
+              <a href="" className=" user-select-none text-center text-decoration-none text-white">
+                <span>--</span>
+                <p>Posts & Polls</p>
+              </a>
+            </Stats>
+          </HeaderContainer>
 
-        {/* Tabs and Content */}
-        <TabsContainer>
-          <TabsHeader className="sticky-top">
-            <button>My Creations</button>
-            <button>Liked</button>
-            <button>Saved</button>
-          </TabsHeader>
-          <Content>
-          </Content>
-        </TabsContainer>
-      </PageContainer>
-    </ThemeProvider>
+          {/* Tabs and Content */}
+          <TabsContainer>
+            <TabsHeader className="sticky-top">
+              <button>My Creations</button>
+              <button>Liked</button>
+              <button>Saved</button>
+            </TabsHeader>
+            <Content>
+            </Content>
+          </TabsContainer>
+        </PageContainer>
+      </ThemeProvider>
+    );
   }
 
   // Render the user profile data once it's loaded
@@ -249,6 +260,7 @@ export default function ProfilePage() {
         : activeTab === "Liked"
           ? likedPosts
           : taggedPosts;
+
     return postsData.map((post) => (
       <Card key={post._id}>
         <p>{post.caption || "No caption"}</p>
@@ -256,7 +268,6 @@ export default function ProfilePage() {
       </Card>
     ));
   };
-
 
   return (
     <ThemeProvider theme={theme}>
@@ -285,10 +296,9 @@ export default function ProfilePage() {
                 )}
               </a>
             </h4>
-
-
             <p>{user.bio}</p>
-            <Link to={'/editprofile'}
+            <Link
+              to={'/editprofile'}
               className="w-100 btn rounded-pill text-white border-light px-3"
               style={{ backgroundColor: theme.primary }}
             >
@@ -306,7 +316,7 @@ export default function ProfilePage() {
               <p>Following</p>
             </a>
             <a href="" className=" user-select-none text-center text-decoration-none text-white">
-              <span>{userPosts.length + userPolls.length}</span>
+              <span>{userPosts.length}</span>
               <p>Posts & Polls</p>
             </a>
           </Stats>
@@ -335,8 +345,5 @@ export default function ProfilePage() {
         </TabsContainer>
       </PageContainer>
     </ThemeProvider>
-
   );
 }
-
-

@@ -1,216 +1,99 @@
-import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
-
-export default function MyNavbar() {
-  const location = useLocation(); // Get the current path
-  const [showSearch, setShowSearch] = useState(false); // State to toggle search box visibility
-
-  const isActive = (path) => location.pathname === path;
-
-  return (
-    <>
-      {/* Navbar for desktop and tablets (left-side navbar) */}
-      <nav
-        className="navbar navbar-dark bg-dark d-none d-md-flex flex-column position-fixed vh-100 shadow"
-        style={{ width: "250px" }}
-      >
-        <div className="container-fluid d-flex flex-column align-items-center py-4">
-          <a className="navbar-brand mb-4" href="/">
-            <h2 className="text-primary">Ideate</h2>
-          </a>
-          <ul className="navbar-nav flex-column w-100">
-            <li className={`nav-item ${isActive("/") ? "active-item" : ""}`}>
-              <a className="nav-link d-flex align-items-center ps-3 text-center hover-effect" href="/">
-                <i className="fa fa-home" style={{ fontSize: "1.5rem" }}></i>
-                <small className="d-block fs-4 ms-5 mt-1">Home</small>
-              </a>
-            </li>
-            <li className={`nav-item ${isActive("/friends") ? "active-item" : ""}`}>
-              <a
-                className="nav-link d-flex align-items-center ps-3 text-center hover-effect"
-                href="/friends"
-              >
-                <i className="fa fa-users" style={{ fontSize: "1.5rem" }}></i>
-                <small className="d-block fs-4 ms-5 mt-1">Friends</small>
-              </a>
-            </li>
-            <li className={`nav-item ${isActive("/create") ? "active-item" : ""}`}>
-              <a
-                className="nav-link d-flex align-items-center ps-3 text-center hover-effect"
-                href="/create"
-              >
-                <i className="fa fa-plus-circle" style={{ fontSize: "1.5rem" }}></i>
-                <small className="d-block fs-4 ms-5 mt-1">Create</small>
-              </a>
-            </li>
-            <li className={`nav-item ${isActive("/chats") ? "active-item" : ""}`}>
-              <a
-                className="nav-link d-flex align-items-center ps-3 text-center hover-effect"
-                href="/chats"
-              >
-                <i className="fa fa-comments" style={{ fontSize: "1.5rem" }}></i>
-                <small className="d-block fs-4 ms-5 mt-1">Chats</small>
-              </a>
-            </li>
-            <li className={`nav-item ${isActive("/myprofile") ? "active-item" : ""}`}>
-              <a
-                className="nav-link d-flex align-items-center ps-3 text-center hover-effect"
-                href="/myprofile"
-              >
-                <i className="fa fa-user" style={{ fontSize: "1.5rem" }}></i>
-                <small className="d-block fs-4 ms-5 mt-1">Profile</small>
-              </a>
-            </li>
-          </ul>
-        </div>
-      </nav>
-
-      {/* Top-right corner (Search and Login) */}
-      <div
-        className="position-fixed d-none d-md-flex align-items-center justify-content-end pe-4"
-        style={{
-          top: "0",
-          right: "0",
-          height: "70px",
-          width: "calc(100% - 250px)",
-          backgroundColor: "var(--bs-dark)",
-          zIndex: "1050",
-        }}
-      >
-        {/* Search Icon */}
-        <div className="me-3 d-flex justify-content-center">
-            {showSearch && (
-              <div className="position-absolute bg-light rounded shadow" style={{ top: "45px", right: "0", width: "300px", padding: "10px", transition: "opacity 0.3s ease", opacity: showSearch ? 1 : 0, zIndex: "1050", }} >
-                <input type="text" className="form-control" placeholder="Search..." autoFocus />
-              </div>
-            )}
-          <i
-            className="fa fa-search text-light hover-icon"
-            style={{ fontSize: "1.5rem", cursor: "pointer" }}
-            title="Search"
-            onClick={() => setShowSearch(!showSearch)}
-          ></i>
-          {/* Search Box */}
-        </div>
-
-        {/* Login Icon */}
-        <a
-          className="nav-link text-light hover-icon"
-          href="/authentication"
-          title="Login"
-        >
-          <i className="fa fa-sign-in-alt" style={{ fontSize: "1.5rem", cursor: "pointer" }}></i>
-        </a>
-      </div>
-      {/* Top bar */}
-      <div
-        className="position-fixed d-flex align-items-center justify-content-between bg-transparent text-light"
-        style={{
-          height: "50px",
-          width: "100%",
-          padding: "0 1rem",
-          zIndex: "1050",
-        }}
-      >
-        {/* Sidebar Toggle Button */}
-        <div
-          className=" text-light bg-dark p-3"
-        //   onClick={handleSidebarToggle}
-          style={{ fontSize: "1.2rem" }}
-        >
-          {/* <i className="fa fa-bars"></i> */}
-        </div>
-
-        {/* Search Bar */}
-        <div className="d-flex align-items-center w-50">
-          <div className="input-group">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Search..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <button className="btn btn-dark px-3">
-              <i className="fa fa-search"></i>
-            </button>
-          </div>
-        </div>
-
-        {/* Login Icon */}
-        <a
-          className="nav-link text-dark hover-icon"
-          href="/authentication"
-          title="Login"
-        >
-          <i className="fa fa-sign-in-alt" style={{ fontSize: "1.5rem" }}></i>
-        </a>
-      </div>
-
-      {/* Main content (adjusted for left navbar) */}
-      <div className="d-md-flex">
-        <div style={{ width: "250px" }}></div>
-        <div className="flex-grow-1 p-3">
-          {/* Your main content goes here */}
-          <h1>Welcome to Ideate</h1>
-          <p>Start exploring your dashboard!</p>
-        </div>
-      </div>
-
-      {/* Navbar for mobile devices */}
-      <nav
-        className="navbar navbar-dark bg-dark fixed-bottom d-flex d-md-none justify-content-around py-2 shadow-lg"
-      >
-        <a
-          className={`nav-link text-white text-center hover-effect ${
-            isActive("/") ? "active-item" : ""
-          }`}
-          href="/"
-        >
-          <i className="fa fa-home" style={{ fontSize: "1.5rem" }}></i>
-          <small className="d-block">Home</small>
-        </a>
-        <a
-          className={`nav-link text-white text-center hover-effect ${
-            isActive("/friends") ? "active-item" : ""
-          }`}
-          href="/friends"
-        >
-          <i className="fa fa-users" style={{ fontSize: "1.5rem" }}></i>
-          <small className="d-block">Friends</small>
-        </a>
-        <a
-          className={`nav-link text-white text-center hover-effect ${
-            isActive("/create") ? "active-item" : ""
-          }`}
-          href="/create"
-        >
-          <i className="fa fa-plus-circle" style={{ fontSize: "1.5rem" }}></i>
-          <small className="d-block">Create</small>
-        </a>
-        <a
-          className={`nav-link text-white text-center hover-effect ${
-            isActive("/chats") ? "active-item" : ""
-          }`}
-          href="/chats"
-        >
-          <i className="fa fa-comments" style={{ fontSize: "1.5rem" }}></i>
-          <small className="d-block">Chats</small>
-        </a>
-        <a
-          className={`nav-link text-white text-center hover-effect ${
-            isActive("/myprofile") ? "active-item" : ""
-          }`}
-          href="/myprofile"
-        >
-          <i className="fa fa-user" style={{ fontSize: "1.5rem" }}></i>
-          <small className="d-block">Profile</small>
-        </a>
-      </nav>
-    </>
-  );
-}
+create a beautifull, animationed powerfull feed page using jsx and bootstrap classes using two APIs one for polls(AllPolls(GET) = http://localhost:8000/poll/allpolls) and second for posts(Allposts(GET) = http://localhost:8000/post/allposts) also analyze these schemas od poll and post
 
 
 
-c
+
+
+import mongoose from "mongoose";
+
+const pollSchema = new mongoose.Schema(
+  {
+    question: { type: String, required: true },
+    options: [{ type: String, required: true }],
+    PostType: {
+      type: String,
+      default: "Poll", // Default value is "Poll"
+    },
+    votes: [{ type: Number, default: 0 }], // Track votes for each option
+    creator: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Optional: Track creator
+    start: { type: Date, default: Date.now }, // Default start time is now
+    end: { type: Date }, // Optional: Set end date for the poll
+    maxVotes: { type: Number, default: 1 }, // Optional: Limit the number of votes per user
+    status: { 
+      type: String, 
+      enum: ["open", "closed", "archived"], 
+      default: "open" // Poll status (open, closed, or archived)
+    },
+    votesHistory: [{ // Optional: Track user votes
+      user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      optionIndex: { type: Number }
+    }]
+  },
+  { timestamps: true }
+);
+
+// Optional: You could add some custom methods to manage votes, like validating if a user has already voted.
+pollSchema.methods.vote = function(userId, optionIndex) {
+  // Check if the user has already voted
+  if (this.votesHistory.some(vote => vote.user.toString() === userId.toString())) {
+    throw new Error('User has already voted');
+  }
+
+  // Update the votes array (increment the selected option)
+  this.votes[optionIndex]++;
+  
+  // Add to votes history
+  this.votesHistory.push({ user: userId, optionIndex });
+  
+  return this.save();
+};
+
+export const Poll = mongoose.model("Poll", pollSchema);
+
+
+
+
+
+
+
+
+
+
+
+import mongoose, { Types } from "mongoose";
+
+const postSchema = new mongoose.Schema(
+  {
+    caption: { type: String, required: true },
+    author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    PostType: {
+      type: String,
+      default: "Post", // Default value is "Post"
+    },
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment'}],
+    shareCount: { type: Number, default: 0 }, // Track shares
+    status: {
+      type: String,
+      enum: ["active", "deleted", "archived", "private"],
+      default: "active", // Manage post status
+    },
+    tags: [{ type: String }], // Tags for categorization
+    location: {
+      type: { type: String, default: "Point" },
+      coordinates: { type: [Number], index: "2dsphere" }, // Geospatial indexing
+    },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Track who updated
+    views: { type: Number, default: 0 }, // Track views
+    reactions: {
+      like: { type: [mongoose.Schema.Types.ObjectId], ref: 'User' },
+      love: { type: [mongoose.Schema.Types.ObjectId], ref: 'User' },
+      wow: { type: [mongoose.Schema.Types.ObjectId], ref: 'User' },
+      sad: { type: [mongoose.Schema.Types.ObjectId], ref: 'User' }
+      // Add more reactions as needed
+    },
+  },
+  { timestamps: true }
+);
+
+export const Post = mongoose.model("Post", postSchema);
