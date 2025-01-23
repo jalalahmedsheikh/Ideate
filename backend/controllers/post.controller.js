@@ -51,15 +51,20 @@ export const getAllPosts = async (req, res) => {
                         path: 'author',
                         select: 'username profileImage'
                     }
-                })
+                });
+        
         return res.status(200).json({
             posts,
             success: true
-        })
+        });
     } catch (error) {
-        console.log(error);
+        console.error("Error fetching posts:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Error fetching posts"
+        });
     }
-}
+};
 
 export const getUserPosts = async (req, res) => {
     try {

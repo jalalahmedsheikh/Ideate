@@ -23,7 +23,7 @@ export default function MyNavbar() {
     axios
       .get("http://localhost:8000/user/suggestions")
       .then((response) => {
-        console.log("Result => " + response.data);
+        console.log("Result => " + response);
         setSuggestedUsers(response.data); // Update state with fetched users
 
       })
@@ -110,7 +110,7 @@ export default function MyNavbar() {
           <div className="m-3">
             {isLoggedIn ? (
               <button
-                className="btn btn-outline-light w-100"
+                className="btn btn-outline-light float-end"
                 onClick={handleLogout}
                 style={{ fontSize: "1rem" }}
                 title="Logout"
@@ -119,7 +119,7 @@ export default function MyNavbar() {
               </button>
             ) : (
               <a
-                className="btn btn-outline-light w-100"
+                className="btn btn-outline-light float-end"
                 href="/auth"
                 style={{ fontSize: "1rem" }}
                 title="Login/SignUp"

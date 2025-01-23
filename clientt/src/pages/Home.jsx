@@ -3,6 +3,7 @@ import axios from 'axios';  // Import axios for API calls
 
 function Home() {
   const [Polls, setPolls] = useState([]);
+  const [Posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [votedPolls, setVotedPolls] = useState({});
   const [pollResults, setPollResults] = useState({});
@@ -13,10 +14,19 @@ function Home() {
       .get('http://localhost:8000/poll/allpolls')  // API call to fetch polls
       .then((response) => {
         setPolls(response.data.polls);
-        setLoading(false);
       })
       .catch((error) => {
         console.error('Error fetching polls:', error);
+      });
+
+    axios
+      .get('http://localhost:8000/post/allposts')  // API call to fetch posts
+      .then((response) => {
+        setPosts(response.data.posts);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error fetching posts:', error);
         setLoading(false);
       });
   }, []);
@@ -60,32 +70,62 @@ function Home() {
 
     setPollResults(results);
   };
+  console.log(Posts);
+  
 
   return (
     <div className="app">
       <h1 className='text-white text-center'>Home</h1>
       {loading ? (
-        <div>Loading polls...</div>
+        <div>Loading posts and polls...</div>
       ) : (
-        <div className="poll-feed">
-          {Array.isArray(Polls) && Polls.length > 0 ? (
-            Polls.map((poll) => (
-              <PollCard
-                key={poll.id}
-                poll={poll}
-                onVote={handleVote}
-                votedOption={votedPolls[poll.id]}
-                pollResults={pollResults[poll.id]}
-              />
-            ))
-          ) : (
-            <div>No polls available.</div>
+        <div className="feed">
+          {/* Render Posts and Polls */}
+          {Array.isArray(Posts) && Posts.length > 0 && (
+            <div className="post-feed">
+              {Posts.map((post) => (
+                post.PostType === "Post" ? (
+                  <PostCard key={post.id} post={post} />
+                ) : post.PostType === "Poll" ? (
+                  <PollCard
+                    key={post.id}
+                    poll={post}
+                    onVote={handleVote}
+                    votedOption={votedPolls[post.id]}
+                    pollResults={pollResults[post.id]}
+                  />
+                ) : null
+              ))}
+            </div>
+          )}
+
+          {Array.isArray(Polls) && Polls.length > 0 && (
+            <div className="poll-feed">
+              {Polls.map((poll) => (
+                <PollCard
+                  key={poll.id}
+                  poll={poll}
+                  onVote={handleVote}
+                  votedOption={votedPolls[poll.id]}
+                  pollResults={pollResults[poll.id]}
+                />
+              ))}
+            </div>
           )}
         </div>
       )}
     </div>
   );
 }
+
+const PostCard = ({ post }) => {
+  return (
+    <div className="post-card">
+      <h3>{post.title}</h3>
+      <p>{post.content}</p>
+    </div>
+  );
+};
 
 const PollCard = ({ poll, onVote, votedOption, pollResults }) => {
   return (
@@ -132,11 +172,12 @@ const style = `
     padding: 20px;
   }
 
-  .poll-feed {
+  .feed {
     max-width: 800px;
     margin: 0 auto;
   }
 
+  .post-card,
   .poll-card {
     background: white;
     margin-bottom: 20px;
@@ -145,10 +186,16 @@ const style = `
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
 
+  .post-card h3,
   .poll-card h3 {
     font-size: 20px;
     font-weight: bold;
     color: #333;
+  }
+
+  .post-card p {
+    font-size: 16px;
+    color: #555;
   }
 
   .poll-options {
