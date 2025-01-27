@@ -5,12 +5,12 @@ import { color, motion } from "framer-motion"; // Importing motion from framer-m
 const theme = {
   primary: "rgb(40, 0, 65)",
   secondary: "#fd1d1d",
-  lightGray: "#f1f1f1",
+  lightGray: "",
   green: "#00ff00",
   red: "#ff4d4d",
 };
 
-const PollCard = () => {
+const PollCard = ({ poll, onVote, votedOption, pollResults }) => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [votes, setVotes] = useState([30, 70]); // Example vote percentages for each option
   const totalVotes = votes.reduce((acc, curr) => acc + curr, 0); // Total votes calculation
@@ -29,7 +29,7 @@ const PollCard = () => {
   };
 
   return (
-    <div style={styles.cardContainer}>
+    <div style={styles.cardContainer} className="border w-100">
       <div style={styles.cardHeader}>
         <FaUserCircle className="fs-1 me-2" />
         <div>
@@ -40,9 +40,9 @@ const PollCard = () => {
         </div>
       </div>
 
-      <div style={styles.cardContent}>
-        <h3 style={styles.pollTitle}>What is your favorite color?</h3>
-        {["Red", "Blue", "Green", "Yellow"].map((option, index) => (
+      <div style={styles.cardContent} className="user-select-none">
+        <h3 style={styles.pollTitle}>{poll.question}</h3>
+        {poll.options.map((option, index) => (
           <div key={index} style={styles.optionContainer}>
             <div
               onClick={() => handleOptionSelect(index)}
@@ -80,13 +80,13 @@ const PollCard = () => {
         ))}
       </div>
 
-      <div style={styles.cardActions}>
+      <div style={styles.cardActions} className="user-select-none">
         <div style={styles.actionButton}>
           <FaShare style={styles.icon} />
           <span>Share</span>
         </div>
         <div style={styles.actionButton}>
-          <FaBookmark style={styles.icon} />
+          <FaBookmark style={styles.icon}/>
           <span>Save</span>
         </div>
       </div>
@@ -97,7 +97,7 @@ const PollCard = () => {
 const styles = {
   cardContainer: {
     width: "100%",
-    maxWidth: "500px",
+    maxWidth: "900px",
     margin: "20px auto",
     backgroundColor: theme.lightGray,
     borderRadius: "10px",
@@ -141,7 +141,7 @@ const styles = {
   },
   votePercentage: {
     fontSize: "12px",
-    color: "black",
+    color: "white",
     marginTop: "5px",
   },
   cardActions: {

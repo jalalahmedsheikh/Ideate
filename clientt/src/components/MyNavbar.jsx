@@ -25,7 +25,6 @@ export default function MyNavbar() {
       .then((response) => {
         console.log("Result => " + response);
         setSuggestedUsers(response.data); // Update state with fetched users
-
       })
       .catch((error) => {
         console.error("Error fetching suggested users:", error);
@@ -36,7 +35,7 @@ export default function MyNavbar() {
 
   const menuItems = [
     { path: "/", label: "Home", icon: "fa-home" },
-    { path: "/friends", label: "Friends", icon: "fa-users" },
+    { path: "/friends", label: "Followings", icon: "fa-users" },
     { path: "/create", label: "Create", icon: "fa-plus-circle" },
     { path: "/updates", label: "Updates", icon: "fa-comments" },
     { path: "/myprofile", label: "Profile", icon: "fa-user" },
@@ -95,7 +94,7 @@ export default function MyNavbar() {
       {/* Main content */}
       <div className="d-md-flex bg-dark">
         <div
-          className="flex-grow-1 p-3"
+          className="flex-grow-1 p-3 d-none d-lg-block"
           style={{
             marginLeft: "300px", // Offset for sidebar
             marginTop: "70px", // Offset for top bar
@@ -103,9 +102,16 @@ export default function MyNavbar() {
         >
           <Outlet />
         </div>
+        <div
+          className="flex-grow-1 p-3 d-block d-lg-none"
+          style={{
+          }}
+        >
+          <Outlet />
+        </div>
 
         {/* Right sidebar */}
-        <div className="bg-dark vh-100 shadow" style={{ width: "300px", minHeight: "100%" }}>
+        <div className="bg-dark vh-100 shadow d-none d-md-block sticky-top" style={{ width: "300px", minHeight: "100%" }}>
           {/* Top-right corner (Login/SignUp or Logout) */}
           <div className="m-3">
             {isLoggedIn ? (
@@ -130,9 +136,8 @@ export default function MyNavbar() {
           </div>
 
           <div className="suggested-users mt-5 pt-4 container-fluid"><hr />
-            <div className="d-flex justify-content-center">
+            <div className="d-flex justify-content-center user-select-none">
               <h4 className="text-center text-white">Suggested Users</h4>
-              {/* <button>RFRSH</button> */}
             </div>
             {suggestedUsers.length > 0 ? (
               suggestedUsers.map((user) => (
@@ -171,40 +176,7 @@ export default function MyNavbar() {
                 </div>
               ))
             ) : (
-                <p className="text-white text-center">No suggested users available.</p>
-              // <div className="user border rounded p-3 bg-dark shadow-lg">
-              //     <div className="d-flex justify-content-center mb-3">
-              //       <img
-              //         src={<FaUserCircle />} // Use a fallback image if no profile image
-              //         alt="ProfileImage"
-              //         className="rounded-circle border border-3 border-light"
-              //         style={{ width: "60px", height: "60px", objectFit: "cover" }}
-              //       />
-              //     </div>
-              //     <div className="info text-center text-white">
-              //       <a
-              //         className="username fs-4 fw-bold text-decoration-none text-white"
-              //         style={{ transition: "color 0.3s ease" }}
-              //         href={`/profile`} // Assuming the profile page is dynamic with user ID
-              //       >
-              //         username
-              //       </a>
-              //       <small className="category d-block text-secondary mb-2">{"Category"}</small>
-              //       <div className="d-flex justify-content-center mb-2">
-              //         <div className="followers me-4 d-flex align-items-center">
-              //           <i className="fa fa-users me-1 text-light" style={{ fontSize: "1.1rem" }}></i>
-              //           <small>459 Followers</small>
-              //         </div>
-              //         <div className="following d-flex align-items-center">
-              //           <i className="fa fa-user-check me-1 text-light" style={{ fontSize: "1.1rem" }}></i>
-              //           <small>45 Following</small>
-              //         </div>
-              //       </div>
-              //       <button className="follow btn btn-light w-100 py-2 fw-bold" style={{ transition: "background-color 0.3s ease" }}>
-              //         Follow
-              //       </button>
-              //     </div>
-              //   </div>
+              <p className="text-white text-center user-select-none">No suggested users available.</p>
             )}
           </div>
         </div>

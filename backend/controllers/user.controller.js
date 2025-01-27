@@ -153,7 +153,7 @@ export const updateProfile = async (req, res) => {
       deleteMediaFromCloudinary(publicId);
     }
 
-    const cloudResponse = await uploadMedia(profilePhoto.path);
+    const cloudResponse = await uploadMedia(profilePhoto);
     const photoUrl = cloudResponse.secure_url;
 
     const updatedData = { name, profileImage: photoUrl };

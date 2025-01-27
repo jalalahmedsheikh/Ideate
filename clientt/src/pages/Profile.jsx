@@ -128,6 +128,10 @@ const Content = styled(motion.div)`
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 1rem;
   padding: 0 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);  // 3 items per row on mobile devices
+  }
 `;
 
 const Card = styled.div`
@@ -136,7 +140,7 @@ const Card = styled.div`
   padding: 1rem;
   color: white;
   position: relative;
-  height: 200px;
+  height: 150px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -165,7 +169,7 @@ export default function ProfilePage() {
         if (err.response && err.response.status === 401) {
           setError('You are not authenticated. Please log in.');
         } else {
-          setError('An error occurred. Please try again later.');
+          setError('An error occurred. Please try again later or refresh');
         }
       }
     };
@@ -185,7 +189,14 @@ export default function ProfilePage() {
   }, []);  // Empty dependency array ensures this runs only once after the component mounts
 
   if (error) {
-    return <div>{error}</div>;  // Display any error messages
+    return (
+      <div className="text-center text-danger">
+        {error}
+        <div className="errorBtn mt-5">
+          <a href="/myprofile" className=" bg-white rounded p-2 text-dark text-decoration-none">Refresh</a>
+        </div>
+      </div>
+    );  // Display any error messages
   }
 
   if (!user) {
@@ -220,15 +231,15 @@ export default function ProfilePage() {
               </Link>
             </Info>
             <Stats>
-              <a href="" className=" user-select-none text-center text-decoration-none text-white">
+              <a href="" className="user-select-none text-center text-decoration-none text-white">
                 <span>--</span>
                 <p>Followers</p>
               </a>
-              <a href="" className=" user-select-none text-center text-decoration-none text-white">
+              <a href="" className="user-select-none text-center text-decoration-none text-white">
                 <span>--</span>
                 <p>Following</p>
               </a>
-              <a href="" className=" user-select-none text-center text-decoration-none text-white">
+              <a href="" className="user-select-none text-center text-decoration-none text-white">
                 <span>--</span>
                 <p>Posts & Polls</p>
               </a>
@@ -242,8 +253,7 @@ export default function ProfilePage() {
               <button>Liked</button>
               <button>Saved</button>
             </TabsHeader>
-            <Content>
-            </Content>
+            <Content></Content>
           </TabsContainer>
         </PageContainer>
       </ThemeProvider>
@@ -258,12 +268,12 @@ export default function ProfilePage() {
       activeTab === "My Creations"
         ? userPosts
         : activeTab === "Liked"
-          ? likedPosts
-          : taggedPosts;
+        ? likedPosts
+        : taggedPosts;
 
     return postsData.map((post) => (
       <Card key={post._id}>
-        <p>{post.caption || "No caption"}</p>
+        <p className="user-select-none">{post.caption.slice(0, 15) + `...` || "No caption"}</p>
         {/* You can add more details from the post object here */}
       </Card>
     ));
@@ -307,17 +317,17 @@ export default function ProfilePage() {
             </Link>
           </Info>
           <Stats>
-            <a href="" className=" user-select-none text-center text-decoration-none text-white">
+            <a href="" className="user-select-none text-center text-decoration-none text-white">
               <span>{user.followers.length}</span>
               <p>Followers</p>
             </a>
-            <a href="" className=" user-select-none text-center text-decoration-none text-white">
+            <a href="" className="user-select-none text-center text-decoration-none text-white">
               <span>{user.followings.length}</span>
               <p>Following</p>
             </a>
-            <a href="" className=" user-select-none text-center text-decoration-none text-white">
+            <a href="" className="user-select-none text-center text-decoration-none text-white">
               <span>{userPosts.length}</span>
-              <p>Posts & Polls</p>
+              <p>Posts</p>
             </a>
           </Stats>
         </HeaderContainer>

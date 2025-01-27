@@ -1,5 +1,4 @@
 import express from "express";
-import isAuthenticated from "../middlewares/isAuthenticated.js";
 import getTrendingPostsPolls  from "../controllers/TrendingPostsPolls.controller.js";
 
 const router = express.Router();

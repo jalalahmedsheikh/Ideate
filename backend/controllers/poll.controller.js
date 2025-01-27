@@ -1,6 +1,5 @@
 import { User } from "../models/user.model.js";
 import { Poll } from "../models/poll.model.js";
-import { getReceiverSocketId, io } from "../socket/socket.js";
 
 // Create a new poll
 export const createPoll = async (req, res) => {
@@ -17,7 +16,7 @@ export const createPoll = async (req, res) => {
         const poll = await Poll.create({
             question,
             options,
-            creator: authorId
+            author: authorId
         })
 
         const userr = await User.findById(authorId)

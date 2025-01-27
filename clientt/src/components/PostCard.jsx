@@ -1,80 +1,129 @@
-import React, { useState } from "react";
-import { FaUserCircle, FaShare } from "react-icons/fa";  // Import FaShare for the share icon
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { FaUserCircle, FaShare } from "react-icons/fa";  
 import { FaRegHeart, FaHeart } from "react-icons/fa"; 
-import { FaBookmark, FaRegBookmark } from "react-icons/fa"; // Import bookmark icons
+import { FaBookmark, FaRegBookmark } from "react-icons/fa"; 
 
 const theme = {
   primary: "rgb(40, 0, 65)",
   secondary: "#fd1d1d",
-  lightGray: "#f1f1f1",
+  lightGray: "dark",
 };
 
-const SocialCard = () => {
-  const [liked, setLiked] = useState(false);
-  const [saved, setSaved] = useState(false);  // Updated state name to 'saved' to avoid conflict with 'Save'
+const PostCard = () => {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null); 
+  const [likedPosts, setLikedPosts] = useState({});
+  const [savedPosts, setSavedPosts] = useState({});
 
-  const toggleLike = () => {
-    setLiked(!liked);
+  // Fetch Poll Data from API
+  useEffect(() => {
+    axios
+      .get("http://localhost:8000/post/allposts")
+      .then((response) => {
+        setPosts(response.data.posts); 
+        setLoading(false); 
+      })
+      .catch((error) => {
+        setError("Error fetching posts");
+        setLoading(false);
+      });
+  }, []);
+
+  const toggleLike = (postId) => {
+    setLikedPosts(prevState => ({
+      ...prevState,
+      [postId]: !prevState[postId],
+    }));
   };
 
-  const toggleSave = () => {
-    setSaved(!saved);  // Toggle the 'saved' state properly
+  const toggleSave = (postId) => {
+    setSavedPosts(prevState => ({
+      ...prevState,
+      [postId]: !prevState[postId],
+    }));
   };
+
+  if (loading) {
+    return <div className='text-center'>Loading posts...</div>;
+  }
+
+  if (error) {
+    return <div className='text-center'>{error}</div>;
+  }
 
   return (
-    <div style={styles.cardContainer}>
-      <div style={styles.cardHeader}>
-        <div>
-          <FaUserCircle className="fs-1 me-2" />
-        </div>
-        <div>
-          <div style={styles.username}>john_doe</div>
-          <div style={styles.footer}>
-            <span>2 hours ago</span>
+    <div className="app">
+      <h1 className="text-white text-center">Home</h1>
+      {/* Adding the shake animation style directly here */}
+      <style>
+        {`
+          @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+          }
+        `}
+      </style>
+      {posts.map((post) => (
+        <div key={post.id} style={styles.cardContainer} className="border">
+          <div style={styles.cardHeader}>
+            <div>
+              <FaUserCircle className="fs-1 me-2" />
+            </div>
+            <div>
+              <div style={styles.username}>{post.username || "john_doe"}</div>
+              <div style={styles.footer}>
+                <span>{post.timestamp || "2 hours ago"}</span>
+              </div>
+            </div>
+          </div>
+          <div style={styles.cardImage}>
+            <h5>{post.caption}</h5>
+          </div>
+          <div style={styles.cardActions} className="user-select-none">
+            <div
+              onClick={() => toggleLike(post.id)}
+              style={{
+                ...styles.actionButton,
+                animation: likedPosts[post.id] ? "shake 0.5s ease-in-out" : "none",
+              }}
+            >
+              <span
+                style={{
+                  ...styles.icon,
+                  color: likedPosts[post.id] ? theme.primary : theme.secondary,
+                }}
+              >
+                {likedPosts[post.id] ? <FaHeart /> : <FaRegHeart />}
+              </span>
+              <span>{likedPosts[post.id] ? "Liked" : "Like"}</span>
+            </div>
+            <div style={styles.actionButton}>
+              <span style={styles.icon}><i className="fa-regular fa-comment"></i></span>
+              <span>Comment</span>
+            </div>
+            <div style={styles.actionButton}>
+              <span style={styles.icon}><FaShare /></span>
+              <span>Share</span>
+            </div>
+            <div onClick={() => toggleSave(post.id)} style={styles.actionButton}>
+              <span style={styles.icon}>
+                {savedPosts[post.id] ? <FaBookmark /> : <FaRegBookmark />}
+              </span>
+              <span>{savedPosts[post.id] ? "Saved" : "Save"}</span>
+            </div>
+          </div>
+          <div style={styles.cardContent}>
+            <span style={styles.likesCount}>
+              {likedPosts[post.id] ? "1 Like" : "0 Likes"}
+            </span>
           </div>
         </div>
-      </div>
-      <div style={styles.cardImage}>
-        <h5>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eveniet itaque, aliquam quo minima asperiores commodi rerum iste quia sint voluptatum quaerat ab neque autem harum veniam.</h5>
-      </div>
-      <div style={styles.cardActions}>
-        <div
-          onClick={toggleLike}
-          style={{
-            ...styles.actionButton,
-            animation: liked ? "shake 0.5s ease-in-out" : "none", // Apply shake only when liked
-          }}
-        >
-          <span
-            style={{
-              ...styles.icon,
-              color: liked ? theme.primary : theme.secondary, // Set heart color
-            }}
-          >
-            {liked ? <FaHeart /> : <FaRegHeart />}
-          </span>
-          <span>{liked ? "Liked" : "Like"}</span>
-        </div>
-        <div style={styles.actionButton}>
-          <span style={styles.icon}><i className="fa-regular fa-comment"></i></span>
-          <span>Comment</span>
-        </div>
-        <div style={styles.actionButton}>
-          <span style={styles.icon}><FaShare /> {/* Use FaShare from react-icons/fa */}</span>
-          <span>Share</span>
-        </div>
-        <div onClick={toggleSave} style={styles.actionButton}>  {/* Added onClick to trigger toggleSave */}
-          <span style={styles.icon}>
-            {saved ? <FaBookmark /> : <FaRegBookmark />}  {/* Use the 'saved' state */}
-          </span>
-          <span>{saved ? "Saved" : "Save"}</span>
-        </div>
-      </div>
-      <div style={styles.cardContent}>
-        <span style={styles.likesCount}>
-          {liked ? "1 Like" : "0 Likes"}
-        </span>
-      </div>
+      ))}
     </div>
   );
 };
@@ -132,16 +181,4 @@ const styles = {
   },
 };
 
-// Adding the shake animation
-const styleSheet = document.styleSheets[0];
-styleSheet.insertRule(`
-  @keyframes shake {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    50% { transform: translateX(5px); }
-    75% { transform: translateX(-5px); }
-    100% { transform: translateX(0); }
-  }
-`, styleSheet.cssRules.length);
-
-export default SocialCard;
+export default PostCard;

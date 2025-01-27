@@ -9,7 +9,7 @@ const pollSchema = new mongoose.Schema(
       default: "Poll", // Default value is "Poll"
     },
     votes: [{ type: Number, default: 0 }], // Track votes for each option
-    creator: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Optional: Track creator
+    author: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Optional: Track creator
     start: { type: Date, default: Date.now }, // Default start time is now
     end: { type: Date }, // Optional: Set end date for the poll
     maxVotes: { type: Number, default: 1 }, // Optional: Limit the number of votes per user
