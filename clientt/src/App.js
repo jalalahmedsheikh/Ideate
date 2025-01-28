@@ -10,6 +10,7 @@ import Updates from './pages/Updates';
 import Profile from './pages/Profile';
 import Cookies from 'js-cookie'; // We'll use js-cookie to read cookies
 import EditProfile from './pages/EditProfile';
+import OtherUserProfilePage from './pages/OtherUserProfilePage';
 
 function App() {
   const [user, setLoginUser] = useState(null);
@@ -18,10 +19,10 @@ function App() {
   // Check if the JWT token exists in cookies on initial load
   useEffect(() => {
     const token = Cookies.get('token');
-    if (token) {
+    // if (token) {
       // Optionally, you could decode the token to extract user data
-      // setLoginUser(decodeJwt(token)); // assuming decodeJwt is a function to decode the token
-    }
+       //setLoginUser(decodeJwt(token)); // assuming decodeJwt is a function to decode the token
+    // }
   }, []);
 
   // A helper function to protect routes
@@ -41,9 +42,9 @@ function App() {
             <Route path="/updates" element={<ProtectedRoute element={<Updates />} />} />
             <Route path="/myprofile" element={<ProtectedRoute element={<Profile />} />} />
             <Route path="/editprofile" element={<ProtectedRoute element={<EditProfile />} />} />
+            <Route path='/profile/:id' element={<OtherUserProfilePage/>}/>
           </Route>
 
-          {/* Public route for Authentication */}
           <Route path="/auth" element={<Auth setLoginUser={setLoginUser} />} />
         </Routes>
     </div>

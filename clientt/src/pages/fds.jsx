@@ -3,11 +3,8 @@ import React, { useEffect, useState } from "react";
 import { FaUserCircle, FaShare, FaEllipsisV } from "react-icons/fa";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { FaBookmark, FaRegBookmark } from "react-icons/fa";
-import { Link, Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import Cookies from 'js-cookie';
-import { formatDistanceToNow, parseISO } from 'date-fns';
-import verifiedBadge from '../assets/images/verified.png';
-import { animate } from "framer-motion";
 
 const theme = {
   primary: "rgb(40, 0, 65)",
@@ -21,12 +18,12 @@ const Home = () => {
   const [error, setError] = useState(null);
   const [likedPosts, setLikedPosts] = useState({});
   const [savedPosts, setSavedPosts] = useState({});
-  const [activeTab, setActiveTab] = useState("explore"); // "explore" or "followings"
+  const [activeTab, setActiveTab] = useState("explore");
   const [showMenu, setShowMenu] = useState(null); // State to track the open menu
 
   // Fetch Posts from API
   const fetchPosts = (tab) => {
-    setLoading(true); // Show loading
+    setLoading(true);
 
     if (tab === "explore") {
       const url = "http://localhost:8000/post/allposts";
@@ -34,42 +31,33 @@ const Home = () => {
         .get(url)
         .then((response) => {
           setPosts(response.data.posts);
-          setLoading(false); // Hide loading
+          setLoading(false);
         })
         .catch((error) => {
           setError("Check your network and try again.");
-          setLoading(false); // Hide loading
+          setLoading(false);
         });
     } else {
-      // For "followings" tab, we clear the posts or show an empty state.
       setPosts([]);
-      setLoading(false); // Hide loading immediately for empty followings state
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchPosts(activeTab); // Fetch posts for the active tab
-  }, [activeTab]); // When tab changes, fetch posts
+    fetchPosts(activeTab);
+  }, [activeTab]);
 
   // Toggle like functionality
   const toggleLike = async (postId) => {
     try {
       if (likedPosts[postId]) {
         const token = Cookies.get('token');
-        // If no token is found, redirect to Auth page
         return !token ? <Navigate to="/auth" /> : await axios.post(`http://localhost:8000/post/${postId}/dislike`);
-        setLikedPosts((prevState) => ({
-          ...prevState,
-          [postId]: false,
-        }));
+        setLikedPosts((prevState) => ({ ...prevState, [postId]: false }));
       } else {
         const token = Cookies.get('token');
-        // If no token is found, redirect to Auth page
         return !token ? <Navigate to="/auth" /> : await axios.post(`http://localhost:8000/post/${postId}/like`);
-        setLikedPosts((prevState) => ({
-          ...prevState,
-          [postId]: true,
-        }));
+        setLikedPosts((prevState) => ({ ...prevState, [postId]: true }));
       }
     } catch (error) {
       console.error("Error toggling like", error);
@@ -81,16 +69,10 @@ const Home = () => {
     try {
       if (savedPosts[postId]) {
         await axios.post(`http://localhost:8000/post/${postId}/unsavepost`);
-        setSavedPosts((prevState) => ({
-          ...prevState,
-          [postId]: false,
-        }));
+        setSavedPosts((prevState) => ({ ...prevState, [postId]: false }));
       } else {
         await axios.post(`http://localhost:8000/post/${postId}/savepost`);
-        setSavedPosts((prevState) => ({
-          ...prevState,
-          [postId]: true,
-        }));
+        setSavedPosts((prevState) => ({ ...prevState, [postId]: true }));
       }
     } catch (error) {
       console.error("Error toggling save", error);
@@ -118,12 +100,6 @@ const Home = () => {
     }
   };
 
-  // Function to format time to "time ago" format
-  const formatTimeAgo = (createdAt) => {
-    const parsedDate = parseISO(createdAt); // Parse the ISO date
-    return formatDistanceToNow(parsedDate) + ' ago'; // Format the date to "time ago"
-  };
-
   if (loading) {
     return <div className="text-center">Loading posts...</div>;
   }
@@ -136,52 +112,15 @@ const Home = () => {
     <div className="app">
       <div className="head sticky-top user-select-none">
         <h1 className="text-white text-center">Home</h1>
-        {/* Tab Navigation */}
         <div className="tabs-container">
-          <div
-            className={`tab ${activeTab === "explore" ? "active" : ""}`}
-            onClick={() => setActiveTab("explore")}
-          >
+          <div className={`tab ${activeTab === "explore" ? "active" : ""}`} onClick={() => setActiveTab("explore")}>
             Explore
           </div>
-          <div
-            className={`tab ${activeTab === "followings" ? "active" : ""}`}
-            onClick={() => setActiveTab("followings")}
-          >
+          <div className={`tab ${activeTab === "followings" ? "active" : ""}`} onClick={() => setActiveTab("followings")}>
             Followings
           </div>
         </div>
       </div>
-
-      {/* Adding the shake animation style directly here */}
-      <style>
-        {`
-          @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-5px); }
-            100% { transform: translateX(0); }
-          }
-          .tabs-container {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-          }
-          .tab {
-            margin: 0 20px;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            color: #fff;
-            border-radius: 8px;
-          }
-          .tab.active {
-            background-color: ${theme.primary};
-          }
-        `}
-      </style>
 
       {/* Conditional Rendering for Followings Tab */}
       {activeTab === "followings" && posts.length === 0 ? (
@@ -189,48 +128,41 @@ const Home = () => {
           <h5>No posts to show. Follow some users to see their posts.</h5>
         </div>
       ) : (
-        // Display Posts
         posts.map((post) => (
           <div key={post.id} style={styles.cardContainer} className="border">
             <div style={styles.cardHeader}>
               <div>
-                {
-                  post.author.profileImage ? <img src={post.author.profileImage} alt={post.author.username} /> : <FaUserCircle className="fs-1 me-2" />
-                }
+                <FaUserCircle className="fs-1 me-2" />
               </div>
-              <div className="w-100">
-                <Link className=" user-select-none text-decoration-none text-white" to={`/profile/${post.author._id}`} style={styles.username}>
-                  {post.author.username || "Ideate-user"}{post.author.isverified ? <img
-                    src={verifiedBadge}
-                    alt="Verified"
-                    style={{ width: '20px', height: '15px', marginLeft: '3px', verticalAlign: 'middle' }}
-                    className=""
-                  /> : ""}
-                </Link>
+              <div>
+                <div style={styles.username}>{post.username || "john_doe"}</div>
                 <div style={styles.footer}>
-                  <span>{formatTimeAgo(post.createdAt)}</span> {/* Display the formatted time */}
+                  <span>{post.timestamp || "2 hours ago"}</span>
                 </div>
               </div>
+              {/* Only show the 3-dot menu for the post owner */}
+              {post.username === "john_doe" && (
+                <div className="dropdown" style={styles.menuIcon}>
+                  <FaEllipsisV onClick={() => setShowMenu(post.id === showMenu ? null : post.id)} />
+                  {showMenu === post.id && (
+                    <div className="dropdown-menu">
+                      <button className="dropdown-item" onClick={() => deletePost(post.id)}>
+                        Delete Post
+                      </button>
+                      <button className="dropdown-item" onClick={() => reportPost(post.id)}>
+                        Report Post
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             <div style={styles.cardImage}>
               <h5>{post.caption}</h5>
             </div>
             <div style={styles.cardActions} className="user-select-none">
-              <div
-                onClick={() => toggleLike(post.id)}
-                style={{
-                  ...styles.actionButton,
-                  animation: likedPosts[post.id] ? "shake 0.5s ease-in-out" : "none",
-                }}
-              >
-                <span
-                  style={{
-                    ...styles.icon,
-                    color: likedPosts[post.id] ? theme.primary : theme.secondary,
-                  }}
-                >
-                  {likedPosts[post.id] ? <FaHeart /> : <FaRegHeart />}
-                </span>
+              <div onClick={() => toggleLike(post.id)} style={styles.actionButton}>
+                <span style={styles.icon}>{likedPosts[post.id] ? <FaHeart /> : <FaRegHeart />}</span>
                 <span>{likedPosts[post.id] ? "Liked" : "Like"}</span>
               </div>
               <div style={styles.actionButton}>
@@ -249,9 +181,7 @@ const Home = () => {
               </div>
             </div>
             <div style={styles.cardContent}>
-              <span style={styles.likesCount}>
-                {likedPosts[post.id] ? "1 Like" : "0 Likes"}
-              </span>
+              <span style={styles.likesCount}>{likedPosts[post.id] ? "1 Like" : "0 Likes"}</span>
             </div>
           </div>
         ))
@@ -276,12 +206,17 @@ const styles = {
     alignItems: "center",
     padding: "10px",
   },
+  menuIcon: {
+    marginLeft: "auto",
+    cursor: "pointer",
+  },
   username: {
     fontSize: "16px",
     fontWeight: "bold",
   },
   cardImage: {
     width: "100%",
+    height: "300px",
     overflow: "hidden",
     padding: "25px",
   },
@@ -313,7 +248,3 @@ const styles = {
 };
 
 export default Home;
-
-
-
-// like and save animation is not working

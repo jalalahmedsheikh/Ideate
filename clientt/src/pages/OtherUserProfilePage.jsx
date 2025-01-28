@@ -4,8 +4,9 @@ import styled, { createGlobalStyle, ThemeProvider } from "styled-components";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { motion } from "framer-motion";
 import { FaUserCircle } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import verifiedBadge from '../assets/images/verified.png';  // Import the verified badge image
+import axios from "axios";
 
 // Global Styles
 const GlobalStyles = createGlobalStyle`
@@ -151,33 +152,36 @@ const Card = styled.div`
   }
 `;
 
-export default function ProfilePage() {
+export default function OtherUserProfilePage() {
+  const { userId } = useParams();  // Get userId from URL params
   const [user, setUser] = useState(null);  // Store user data
   const [userPosts, setUserPosts] = useState([]);  // Store posts data
-  const [likedPosts, setLikedPosts] = useState([]);  // Store liked posts
-  const [taggedPosts, setTaggedPosts] = useState([]);  // Store tagged posts
   const [error, setError] = useState(null);  // Store any error messages
   const [activeTab, setActiveTab] = useState("My Creations");
+  console.log(userId);
+  
+  
 
   useEffect(() => {
-    // Fetch profile data from the backend
+    // Fetch profile data for the other user
     const fetchProfile = async () => {
       try {
-        const response = await axiosInstance.get('http://localhost:8000/user/profile');  // API to get user profile
-        setUser(response.data.user);  // Set user data in state
+        const response = await axios.get(`http://localhost:8000/user/profile/${userId}`);  // API to get other user's profile
+        setUser(response.data.user);  // Set user data in sta
+        
       } catch (err) {
-        if (err.response && err.response.status === 401) {
-          setError('You are not authenticated. Please log in.');
+        if (err.response && err.response.status === 404) {
+          setError('User not found.');
         } else {
           setError('An error occurred. Please try again later or refresh');
         }
       }
     };
 
-    // Fetch the logged-in user's posts
+    // Fetch the other user's posts
     const fetchUserPosts = async () => {
       try {
-        const response = await axiosInstance.get('http://localhost:8000/post/userpost/all');  // API to get user posts
+        const response = await axiosInstance.get(`http://localhost:8000/post/userpost/all/${userId}`);  // API to get user posts
         setUserPosts(response.data.posts);  // Set posts data in state
       } catch (err) {
         console.error("Error fetching user posts:", err);
@@ -186,14 +190,14 @@ export default function ProfilePage() {
 
     fetchProfile();
     fetchUserPosts();  // Fetch posts when the component mounts
-  }, []);  // Empty dependency array ensures this runs only once after the component mounts
+  }, [userId]);  // Dependency array includes userId so the effect runs when userId changes
 
   if (error) {
     return (
       <div className="text-center text-danger">
         {error}
         <div className="errorBtn mt-5">
-          <a href="/myprofile" className=" bg-white rounded p-2 text-dark text-decoration-none">Refresh</a>
+          <a href="/" className=" bg-white rounded p-2 text-dark text-decoration-none">Go back</a>
         </div>
       </div>
     );  // Display any error messages
@@ -226,7 +230,7 @@ export default function ProfilePage() {
                 className="w-100 btn rounded-pill text-white border-light px-3"
                 style={{ backgroundColor: theme.primary }}
               >
-                Edit Profile{" "}
+                Follow{" "}
                 <i className="fa-solid fa-pen ms-1" style={{ fontSize: "15px" }}></i>
               </Link>
             </Info>
@@ -241,7 +245,7 @@ export default function ProfilePage() {
               </a>
               <a href="" className="user-select-none text-center text-decoration-none text-white">
                 <span>--</span>
-                <p>Posts & Polls</p>
+                <p>Posts</p>
               </a>
             </Stats>
           </HeaderContainer>
@@ -260,7 +264,6 @@ export default function ProfilePage() {
     );
   }
 
-  // Render the user profile data once it's loaded
   const tabs = ["My Creations", "Liked", "Saved"];
 
   const renderContent = () => {
@@ -268,8 +271,8 @@ export default function ProfilePage() {
       activeTab === "My Creations"
         ? userPosts
         : activeTab === "Liked"
-        ? likedPosts
-        : taggedPosts;
+        ? []
+        : [];
 
     return postsData.map((post) => (
       <Card key={post._id}>
@@ -312,7 +315,7 @@ export default function ProfilePage() {
               className="w-100 btn rounded-pill text-white border-light px-3"
               style={{ backgroundColor: theme.primary }}
             >
-              Edit Profile{" "}
+              Follow{" "}
               <i className="fa-solid fa-pen ms-1" style={{ fontSize: "15px" }}></i>
             </Link>
           </Info>

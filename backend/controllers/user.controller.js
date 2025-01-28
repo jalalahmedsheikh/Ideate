@@ -132,6 +132,48 @@ export const getUserProfile = async (req, res) => {
   }
 };
 
+export const getSingleUser = async (req, res) => {
+  try {
+    const userId = req.params.userId;  // Ensure you are using req.params for route parameters
+    
+    // Check if userId is undefined
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required"
+      });
+    }
+
+    // Try to convert the userId to a valid ObjectId if necessary (it can happen if it's a string)
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid User ID"
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      user
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
+};
+
+
 // 5. Update User Profile: Updates the user's profile (including photo and name).
 export const updateProfile = async (req, res) => {
   try {
