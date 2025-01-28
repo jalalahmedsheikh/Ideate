@@ -140,7 +140,7 @@ const Home = () => {
   return (
     <div className="app">
       <div className="head sticky-top user-select-none">
-        <h1 className="text-white text-center">Home</h1>
+        <h1 className="text-white text-center d-none d-lg-block">Home</h1>
         {/* Tab Navigation */}
         <div className="tabs-container">
           <div
@@ -236,7 +236,7 @@ const Home = () => {
                     color: likedPosts[post.id] ? theme.primary : theme.secondary,
                   }}
                 >
-                  {likedPosts[post.id] ? <FaHeart /> : <FaRegHeart />}
+                  {likedPosts[post.id] ? <FaHeart /> : <FaRegHeart className="text-white" />}
                 </span>
                 <span>{likedPosts[post.id] ? "Liked" : "Like"}</span>
               </div>
