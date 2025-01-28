@@ -35,8 +35,8 @@ export default function MyNavbar() {
 
   const menuItems = [
     { path: "/", label: "Home", icon: "fa-home" },
-    { path: "/friends", label: "Followings", icon: "fa-users" },
-    { path: "/create", label: "Create", icon: "fa-plus-circle" },
+    { path: "/followings", label: "Followings", icon: "fa-users" },
+    { path: "/create", label: "Create", icon: "fa-solid fa-file-pen" },
     { path: "/updates", label: "Updates", icon: "fa-comments" },
     { path: "/myprofile", label: "Profile", icon: "fa-user" },
   ];
@@ -187,7 +187,7 @@ export default function MyNavbar() {
         {menuItems.map(({ path, label, icon }) => (
           <a
             key={path}
-            className={`nav-link text-white text-center hover-effect ${isActive(path) ? "active-item" : ""}`}
+            className={`nav-link text-white text-center hover-effect  ${isActive(path) ? "active-item  border-bottom fs-5" : "fs-6"}`}
             href={path}
           >
             <i className={`fa ${icon}`} style={{ fontSize: "1.5rem" }}></i>

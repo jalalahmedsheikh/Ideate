@@ -3,12 +3,11 @@ import React, { useEffect, useState } from "react";
 import { FaUserCircle, FaShare, FaEllipsisV } from "react-icons/fa";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { FaBookmark, FaRegBookmark } from "react-icons/fa";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import Cookies from 'js-cookie';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import verifiedBadge from '../assets/images/verified.png';
 import { animate } from "framer-motion";
-import PostPage from "./PostPage";
 
 const theme = {
   primary: "rgb(40, 0, 65)",
@@ -124,10 +123,6 @@ const Home = () => {
     const parsedDate = parseISO(createdAt); // Parse the ISO date
     return formatDistanceToNow(parsedDate) + ' ago'; // Format the date to "time ago"
   };
-  const navigate = useNavigate();  // Initialize navigate
-  const comment = (postId) => {
-    navigate(`/post/${postId}`, { state: { postId } }); // Send postId as state
-  };
 
   if (loading) {
     return <div className="text-center">Loading posts...</div>;
@@ -140,18 +135,18 @@ const Home = () => {
   return (
     <div className="app">
       <div className="head sticky-top user-select-none">
-        <h1 className="text-white text-center">Home</h1>
+        {/* <h1 className="text-white text-center">Home</h1> */}
         {/* Tab Navigation */}
         <div className="tabs-container">
-          <div
+          {/* <div
             className={`tab ${activeTab === "explore" ? "text-white border-bottom border-3 rounded-0" : "text-secondary"}`}
             onClick={() => setActiveTab("explore")}
           >
             Explore
-          </div>
+          </div> */}
           <div
-            className={`tab ${activeTab === "followings" ? "text-white border-bottom border-3 rounded-0" : "text-secondary"}`}
-            onClick={() => setActiveTab("followings")}
+            className={`tab text-white border-bottom border-3 rounded-0`}
+            // onClick={() => setActiveTab("followings")}
           >
             Followings
           </div>
@@ -198,13 +193,11 @@ const Home = () => {
         posts.map((post) => (
           <div key={post.id} style={styles.cardContainer} className="border">
             <div style={styles.cardHeader}>
-              <Link className=" user-select-none text-decoration-none text-white" to={`/profile/${post.author._id}`} style={styles.username}>
-                <div>
-                  {
-                    post.author.profileImage ? <img src={post.author.profileImage} alt={post.author.username} /> : <FaUserCircle className="fs-1 me-2" />
-                  }
-                </div>
-              </Link>
+              <div>
+                {
+                  post.author.profileImage ? <img src={post.author.profileImage} alt={post.author.username} /> : <FaUserCircle className="fs-1 me-2" />
+                }
+              </div>
               <div className="w-100">
                 <Link className=" user-select-none text-decoration-none text-white" to={`/profile/${post.author._id}`} style={styles.username}>
                   {post.author.username || "Ideate-user"}{post.author.isverified ? <img
@@ -224,7 +217,7 @@ const Home = () => {
             </div>
             <div style={styles.cardActions} className="user-select-none">
               <div
-                onClick={() => toggleLike(post._id)}
+                onClick={() => toggleLike(post.id)}
                 style={{
                   ...styles.actionButton,
                   animation: likedPosts[post.id] ? "shake 0.5s ease-in-out" : "none",
@@ -240,15 +233,15 @@ const Home = () => {
                 </span>
                 <span>{likedPosts[post.id] ? "Liked" : "Like"}</span>
               </div>
-              <div style={styles.actionButton} onClick={() => comment(post._id)}>
+              <div style={styles.actionButton}>
                 <span style={styles.icon}><i className="fa-regular fa-comment"></i></span>
                 <span>Comment</span>
               </div>
-              {/* <div style={styles.actionButton}>
+              <div style={styles.actionButton}>
                 <span style={styles.icon}><FaShare /></span>
                 <span>Share</span>
-              </div> */}
-              <div onClick={() => toggleSave(post._id)} style={styles.actionButton}>
+              </div>
+              <div onClick={() => toggleSave(post.id)} style={styles.actionButton}>
                 <span style={styles.icon}>
                   {savedPosts[post.id] ? <FaBookmark /> : <FaRegBookmark />}
                 </span>
@@ -257,7 +250,7 @@ const Home = () => {
             </div>
             <div style={styles.cardContent}>
               <span style={styles.likesCount}>
-                {`${post.likes.length} Likes`}
+                {likedPosts[post.id] ? "1 Like" : "0 Likes"}
               </span>
             </div>
           </div>
@@ -320,3 +313,4 @@ const styles = {
 };
 
 export default Home;
+

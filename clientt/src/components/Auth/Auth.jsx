@@ -60,7 +60,7 @@ const Auth = ({ setLoginUser }) => {
     <div className="container d-flex justify-content-center align-items-center min-vh-100">
       <div className="card shadow-lg" style={{ width: '28rem' }}>
         <div className="card-body">
-          <h2 className="card-title text-center mb-4 text-primary">
+          <h2 className="card-title text-center mb-4 text-dark">
             {isLogin ? 'Welcome Back' : 'Create an Account'}
           </h2>
           <p className="text-center text-muted mb-4">
@@ -123,7 +123,7 @@ const Auth = ({ setLoginUser }) => {
 
             <button
               type="submit"
-              className={`btn btn-primary w-100 ${loading ? 'disabled' : ''}`}
+              className={`btn btn-dark w-100 ${loading ? 'disabled' : ''}`}
             >
               {loading
                 ? isLogin

@@ -307,3 +307,54 @@ export const SavePost = async (req,res) => {
         console.log(error);
     }
 }
+
+// Share Post
+export const sharePost = async (req, res) => {
+    try {
+        const postId = req.params.id;
+        const userId = req.id;
+
+        const post = await Post.findById(postId)
+            .populate({ path: 'author', select: 'username' });
+
+        if (!post) {
+            return res.status(404).json({
+                success: false,
+                message: 'Post not found.',
+            });
+        }
+
+        const user = await User.findById(userId).select('username profileImage');
+
+        const shareData = {
+            postUrl: `http://localhost:3000/posts/${post._id}`,
+            caption: post.caption,
+            sharedBy: user.username,
+            userProfileImage: user.profileImage,
+            postOwner: post.author.username,
+        };
+
+        const notification = {
+            type: 'share',
+            userId: userId,
+            postId: postId,
+            message: `${user.username} shared your post "${post.caption.slice(0, 7)}..."`,
+        };
+
+        const postOwnerSocketId = getReceiverSocketId(post.author._id.toString());
+        io.to(postOwnerSocketId).emit('notification', notification);
+
+        return res.status(200).json({
+            success: true,
+            message: 'Post shared successfully!',
+            shareData,
+        });
+    } catch (error) {
+        console.error("Error sharing post:", error);
+        return res.status(500).json({
+            success: false,
+            message: 'Error sharing post.',
+        });
+    }
+}
+

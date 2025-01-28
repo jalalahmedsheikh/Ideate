@@ -157,7 +157,7 @@ export default function ProfilePage() {
   const [likedPosts, setLikedPosts] = useState([]);  // Store liked posts
   const [taggedPosts, setTaggedPosts] = useState([]);  // Store tagged posts
   const [error, setError] = useState(null);  // Store any error messages
-  const [activeTab, setActiveTab] = useState("My Creations");
+  const [activeTab, setActiveTab] = useState("My Ideas");
 
   useEffect(() => {
     // Fetch profile data from the backend
@@ -249,7 +249,7 @@ export default function ProfilePage() {
           {/* Tabs and Content */}
           <TabsContainer>
             <TabsHeader className="sticky-top">
-              <button>My Creations</button>
+              <button>My Ideas</button>
               <button>Liked</button>
               <button>Saved</button>
             </TabsHeader>
@@ -261,11 +261,11 @@ export default function ProfilePage() {
   }
 
   // Render the user profile data once it's loaded
-  const tabs = ["My Creations", "Liked", "Saved"];
+  const tabs = ["My Ideas", "Liked", "Saved"];
 
   const renderContent = () => {
     const postsData =
-      activeTab === "My Creations"
+      activeTab === "My Ideas"
         ? userPosts
         : activeTab === "Liked"
         ? likedPosts
