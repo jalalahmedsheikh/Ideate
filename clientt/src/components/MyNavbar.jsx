@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie"; // Make sure to install js-cookie via npm
 import axios from "axios"; // You may need to install axios
 import { FaUserCircle } from "react-icons/fa";
+import verifiedBadge from '../assets/images/verified.png';  // Import the verified badge image
 
 export default function MyNavbar() {
   const location = useLocation();
@@ -23,8 +24,8 @@ export default function MyNavbar() {
     axios
       .get("http://localhost:8000/user/suggestions")
       .then((response) => {
-        console.log("Result => " + response);
-        setSuggestedUsers(response.data); // Update state with fetched users
+        console.log("Result => ", response);
+        setSuggestedUsers(response.data.suggestedUsers); // Update state with fetched users
       })
       .catch((error) => {
         console.error("Error fetching suggested users:", error);
@@ -135,7 +136,7 @@ export default function MyNavbar() {
             )}
           </div>
 
-          <div className="suggested-users mt-5 pt-4 container-fluid"><hr />
+          <div className="suggested-users mt-5 pt-4 container-fluid overflow-y-scroll"><hr />
             <div className="d-flex justify-content-center user-select-none">
               <h4 className="text-center text-white">Suggested Users</h4>
             </div>
@@ -152,21 +153,28 @@ export default function MyNavbar() {
                   </div>
                   <div className="info text-center text-white">
                     <a
-                      className="username fs-4 fw-bold text-decoration-none text-white"
+                      className="username fs-6 fw-bold text-decoration-none text-white"
                       style={{ transition: "color 0.3s ease" }}
                       href={`/profile/${user.id}`} // Assuming the profile page is dynamic with user ID
                     >
-                      {user.username}
+                      <span>@{user.username}</span>
+                                      {user.isverified && (
+                                        <img
+                                          src={verifiedBadge}
+                                          alt="Verified"
+                                          style={{ width: '20px', height: '15px', marginLeft: '5px', verticalAlign: 'middle' }}
+                                        />
+                                      )}{ user.username == "ahmed" ? <sup style={{fontSize: "x-small"}} className="text-secondary bg-white p-1 opacity-50 rounded">Owner</sup> : ""}
                     </a>
-                    <small className="category d-block text-secondary mb-2">{user.category || "Category"}</small>
+                    <small className="category d-block text-secondary mb-2">{user.category || "Ideate-User"}</small>
                     <div className="d-flex justify-content-center mb-2">
                       <div className="followers me-4 d-flex align-items-center">
                         <i className="fa fa-users me-1 text-light" style={{ fontSize: "1.1rem" }}></i>
-                        <small>{user.followersCount} Followers</small>
+                        <small>{user.followers.length} Followers</small>
                       </div>
                       <div className="following d-flex align-items-center">
                         <i className="fa fa-user-check me-1 text-light" style={{ fontSize: "1.1rem" }}></i>
-                        <small>{user.followingCount} Following</small>
+                        <small>{user.followings.length} Following</small>
                       </div>
                     </div>
                     <button className="follow btn btn-light w-100 py-2 fw-bold" style={{ transition: "background-color 0.3s ease" }}>
@@ -179,6 +187,7 @@ export default function MyNavbar() {
               <p className="text-white text-center user-select-none">No suggested users available.</p>
             )}
           </div>
+          
         </div>
       </div>
 

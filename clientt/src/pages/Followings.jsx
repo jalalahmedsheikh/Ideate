@@ -29,7 +29,7 @@ const Home = () => {
     setLoading(true); // Show loading
 
     if (tab === "explore") {
-      const url = "http://localhost:8000/post/allposts";
+      const url = "http://localhost:8000/post/followings";
       axios
         .get(url)
         .then((response) => {
@@ -37,7 +37,7 @@ const Home = () => {
           setLoading(false); // Hide loading
         })
         .catch((error) => {
-          setError("Check your network and try again.");
+          setError("No posts to show. Follow some users to see their posts.");
           setLoading(false); // Hide loading
         });
     } else {

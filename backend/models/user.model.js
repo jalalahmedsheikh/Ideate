@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ["sport", "politician", "actor", "musician", "entrepreneur", "artist","creator", "Ideate-User"], // Predefined categories
+      enum: ["sport", "politician", "actor", "musician", "Mern Stack Developer", "entrepreneur", "artist","creator", "Ideate-User"], // Predefined categories
       default: "Ideate-User", // Default to "Ideate-User" if not specified
     },
   },

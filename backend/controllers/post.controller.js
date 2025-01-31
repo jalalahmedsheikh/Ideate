@@ -67,6 +67,98 @@ export const getAllPosts = async (req, res) => {
     }
 };
 
+// Controller to fetch a single post by its ID
+export const getSinglePost = async (req, res) => {
+    try {
+        const { id } = req.params;  // Get the post ID from the request parameters
+
+        // Validate the ID (optional but recommended)
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: "Post ID is required"
+            });
+        }
+
+        // Find the post by ID, and populate the required fields
+        const post = await Post.findById(id)
+            .populate({ path: 'author', select: 'username profileImage isverified' })
+            .populate(
+                {
+                    path: 'comments', sort: { createdAt: -1 },
+                    populate: {
+                        path: 'author',
+                        select: 'username profileImage isverified'
+                    }
+                });
+
+        // If the post doesn't exist, send a 404 error
+        if (!post) {
+            return res.status(404).json({
+                success: false,
+                message: "Post not found"
+            });
+        }
+
+        // Return the post data if found
+        return res.status(200).json({
+            success: true,
+            post
+        });
+    } catch (error) {
+        console.error("Error fetching post:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Error fetching post"
+        });
+    }
+};
+
+
+export const getAllPostsOfFollowing = async (req, res) => {
+    try {
+        const loggedInUserId = req.id;  // Assuming the logged-in user's ID is available in `req`
+        
+        // Fetch the logged-in user's data, including the list of followed users
+        const user = await User.findById(loggedInUserId).populate('following');
+        
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found',
+            });
+        }
+
+        const followingIds = user.followings.map(followedUser => followedUser._id);
+        
+        // Query posts from followed users, sorted by creation date
+        const posts = await Post.find({ author: { $in: followingIds } })
+            .sort({ createdAt: -1 })  // Sort by creation date, latest first
+            .populate({ path: 'author', select: 'username profileImage isVerified' })
+            .populate({
+                path: 'comments',
+                sort: { createdAt: -1 },
+                populate: {
+                    path: 'author',
+                    select: 'username profileImage isVerified',
+                },
+            });
+
+        return res.status(200).json({
+            success: true,
+            posts,
+        });
+
+    } catch (error) {
+        console.error('Error fetching posts of following:', error.message || error);
+        return res.status(500).json({
+            success: false,
+            message: 'There was an issue retrieving posts of users you follow. Please try again later.',
+        });
+    }
+};
+
+
 export const getUserPosts = async (req, res) => {
     try {
       const authorId = req.id; // Assuming `req.id` is coming from a verified user token

@@ -44,7 +44,7 @@ function App() {
             <Route path="/myprofile" element={<ProtectedRoute element={<Profile />} />} />
             <Route path="/editprofile" element={<ProtectedRoute element={<EditProfile />} />} />
             <Route path='/profile/:id' element={<OtherUserProfilePage />}/>
-            <Route path="/post/:id" component={<PostPage />} />
+            <Route path="/post/:id" element={<PostPage />} />
 
           </Route>
 

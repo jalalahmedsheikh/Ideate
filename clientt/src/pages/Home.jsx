@@ -220,7 +220,14 @@ const Home = () => {
               </div>
             </div>
             <div style={styles.cardImage}>
-              <h5>{post.caption}</h5>
+            <h5>
+                {post.caption.length > 100 ? `${post.caption.slice(0, 100)}...` : post.caption}
+                {post.caption.length > 100 && (
+                  <Link className="user-select-none text-decoration-none py-5" to={`/post/${post._id}`}>
+                    <small className="text-white bg-secondary px-2 rounded">More</small>
+                  </Link>
+                )}
+              </h5>
             </div>
             <div style={styles.cardActions} className="user-select-none">
               <div
@@ -240,10 +247,10 @@ const Home = () => {
                 </span>
                 <span>{likedPosts[post.id] ? "Liked" : "Like"}</span>
               </div>
-              <div style={styles.actionButton} onClick={() => comment(post._id)}>
+              <Link style={styles.actionButton} className=" user-select-none text-decoration-none text-white" to={`/post/${post._id}`}>
                 <span style={styles.icon}><i className="fa-regular fa-comment"></i></span>
                 <span>Comment</span>
-              </div>
+              </Link>
               {/* <div style={styles.actionButton}>
                 <span style={styles.icon}><FaShare /></span>
                 <span>Share</span>
@@ -320,3 +327,4 @@ const styles = {
 };
 
 export default Home;
+

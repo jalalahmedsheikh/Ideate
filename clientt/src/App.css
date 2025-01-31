@@ -12104,6 +12104,7 @@ input:focus {
   outline: none !important;
   box-shadow: 0 0 5px rgba(13, 110, 253, 0.5);
   border-color: #0d6efd;
+  /* font-size: xx-small; */
 }
 
 

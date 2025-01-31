@@ -303,63 +303,96 @@ export const toggleFollow = async (req, res) => {
 };
 
 // 7. Suggested Users: Suggests users based on location and followers.
+// export const suggestedUsers = async (req, res) => {
+//   try {
+//     const userId = req.id; // Assuming req.id contains the logged-in user's ID
+//     const user = await User.findById(userId).select("location followers following");
+
+//     if (!user) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "User not found.",
+//       });
+//     }
+
+//     // Step 1: Exclude the logged-in user
+//     let nearbyUsers = [];
+//     if (user.location && user.location.coordinates) {
+//       nearbyUsers = await User.find({
+//         _id: { $ne: userId }, // Exclude the logged-in user
+//         location: {
+//           $geoWithin: { $centerSphere: [user.location.coordinates, 5 / 3963] }, // 5 miles radius
+//         },
+//       }).limit(5); // Limit the number of nearby users to 5
+//     }
+
+//     // Step 2: Get users suggested based on followers' following list
+//     let suggestedUsers = [];
+//     const followersOfUser = await User.find({ _id: { $in: user.followers } });
+
+//     followersOfUser.forEach(follower => {
+//       suggestedUsers = [...suggestedUsers, ...follower.following];
+//     });
+
+//     // Step 3: Exclude already followed users and the logged-in user
+//     suggestedUsers = suggestedUsers.filter(id => !user.following.includes(id) && id !== userId);
+
+//     // Remove duplicates from the suggested users list
+//     suggestedUsers = [...new Set(suggestedUsers)];
+
+//     // Step 4: Fetch users based on the suggested user IDs
+//     const finalSuggestedUsers = await User.find({ _id: { $in: suggestedUsers } });
+
+//     // Step 5: Combine the nearby users with the final suggested users list
+//     const finalUsersList = [...new Set([...nearbyUsers.map(u => u._id), ...finalSuggestedUsers.map(u => u._id)])];
+
+//     // Step 6: Fetch the complete data for the final list of suggested users
+//     const finalUsers = await User.find({ _id: { $in: finalUsersList } });
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Suggested users fetched successfully.",
+//       users: finalUsers,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal server error.",
+//     });
+//   }
+// };
 export const suggestedUsers = async (req, res) => {
   try {
-    const userId = req.id; // Assuming req.id contains the logged-in user's ID
-    const user = await User.findById(userId).select("location followers following");
+      // Get the logged-in user's ID from the request (assuming it's passed in the request body or JWT token)
+      const loggedInUserId = req.id;  // Or req.body.userId depending on how it's passed
+      
+      // Fetch verified users, excluding the logged-in user
+      const verifiedUsers = await User.find({ _id: { $ne: loggedInUserId }, isverified: true })
+          .select('username profileImage isverified followers followings category')  // Only select necessary fields
+          .limit(10);  // Limit to 10 users (adjust as needed)
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found.",
+      // Fetch non-verified users, excluding the logged-in user
+      const nonVerifiedUsers = await User.find({ _id: { $ne: loggedInUserId }, isverified: false })
+          .select('username profileImage isverified followers followings category')  // Only select necessary fields
+          .limit(10);  // Limit to 10 users (adjust as needed)
+
+      // Concatenate verified and non-verified users, placing verified users first
+      const suggestedUsers = [...verifiedUsers, ...nonVerifiedUsers];
+
+      return res.status(200).json({
+          suggestedUsers,
+          success: true
       });
-    }
-
-    // Step 1: Exclude the logged-in user
-    let nearbyUsers = [];
-    if (user.location && user.location.coordinates) {
-      nearbyUsers = await User.find({
-        _id: { $ne: userId }, // Exclude the logged-in user
-        location: {
-          $geoWithin: { $centerSphere: [user.location.coordinates, 5 / 3963] }, // 5 miles radius
-        },
-      }).limit(5); // Limit the number of nearby users to 5
-    }
-
-    // Step 2: Get users suggested based on followers' following list
-    let suggestedUsers = [];
-    const followersOfUser = await User.find({ _id: { $in: user.followers } });
-
-    followersOfUser.forEach(follower => {
-      suggestedUsers = [...suggestedUsers, ...follower.following];
-    });
-
-    // Step 3: Exclude already followed users and the logged-in user
-    suggestedUsers = suggestedUsers.filter(id => !user.following.includes(id) && id !== userId);
-
-    // Remove duplicates from the suggested users list
-    suggestedUsers = [...new Set(suggestedUsers)];
-
-    // Step 4: Fetch users based on the suggested user IDs
-    const finalSuggestedUsers = await User.find({ _id: { $in: suggestedUsers } });
-
-    // Step 5: Combine the nearby users with the final suggested users list
-    const finalUsersList = [...new Set([...nearbyUsers.map(u => u._id), ...finalSuggestedUsers.map(u => u._id)])];
-
-    // Step 6: Fetch the complete data for the final list of suggested users
-    const finalUsers = await User.find({ _id: { $in: finalUsersList } });
-
-    return res.status(200).json({
-      success: true,
-      message: "Suggested users fetched successfully.",
-      users: finalUsers,
-    });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error.",
-    });
+      console.error("Error fetching suggested users:", error);
+      return res.status(500).json({
+          success: false,
+          message: "Error fetching suggested users"
+      });
   }
 };
+
+
+
 

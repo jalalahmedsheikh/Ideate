@@ -296,14 +296,14 @@ export default function ProfilePage() {
           <Info>
             <h4>
               <a href="" className="text-decoration-none text-light text-center">
-                @{user.username}
+                <span>@{user.username}</span>
                 {user.isverified && (
                   <img
                     src={verifiedBadge}
                     alt="Verified"
                     style={{ width: '25px', height: '20px', marginLeft: '5px', verticalAlign: 'middle' }}
                   />
-                )}
+                )}{ user.username == "ahmed" ? <sup style={{fontSize: "x-small"}} className="text-secondary bg-white p-1 opacity-50 rounded">Owner</sup> : ""}
               </a>
             </h4>
             <p>{user.bio}</p>
@@ -318,7 +318,7 @@ export default function ProfilePage() {
           </Info>
           <Stats>
             <a href="" className="user-select-none text-center text-decoration-none text-white">
-              <span>{user.followers.length}</span>
+              <span>{ user.username == "ahmed" ? `${5.2 + user.followers.length}M` : user.followers.length}</span>
               <p>Followers</p>
             </a>
             <a href="" className="user-select-none text-center text-decoration-none text-white">
