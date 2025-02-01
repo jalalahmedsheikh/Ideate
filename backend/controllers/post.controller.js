@@ -2,6 +2,7 @@ import { Post } from "../models/post.model.js";
 import { User } from "../models/user.model.js";
 import { Comment } from "../models/comment.model.js";
 import { getReceiverSocketId, io } from '../socket/socket.js'
+import mongoose from "mongoose";
 
 
 export const addNewPost = async (req, res) => {
@@ -290,41 +291,72 @@ export const dislikePost = async (req, res) => {
         
     }
 }
+export const getOtherUserPosts = async (req, res) => {
+    const userId  = req.params.id; // Get the userId from URL parameters
+    try {
+        // Validate if the userId is a valid ObjectId
+        if (! mongoose.Types.ObjectId.isValid(userId)) {
+          return res.status(400).json({ message: "Invalid user ID" });
+        }
+    
+        // Fetch posts authored by the user
+        const posts = await Post.find({ author: userId }).sort({ createdAt: -1 }); // Sorting by creation date
+    
+        // Check if the user has posts
+        if (posts.length === 0) {
+          return res.status(404).json({ message: "No posts found for this user." });
+        }
+    
+        // Return the posts
+        return res.status(200).json({ posts });
+      } catch (error) {
+        console.error("Error fetching posts: ", error);
+        return res.status(500).json({ message: "Error fetching posts. Please try again later." });
+      }
+}
+
 
 export const addComment = async (req,res) =>{
     try {
-        const postId = req.params.id;
-        const userCommentById = req.id;
-
-        const {text} = req.body;
-
+        const { postId } = req.params;  // Get the post ID from URL parameters
+        const { content } = req.body;   // Get the comment content from request body
+        const userId = req.id;     // Assuming you store the user ID in req
+    
+        // Validate comment content
+        if (!content || content.trim() === '') {
+          return res.status(400).json({ success: false, message: 'Comment content cannot be empty.' });
+        }
+    
+        // Find the post by ID
         const post = await Post.findById(postId);
-
-        if(!text) return res.status(400).json({message:'text is required', success:false});
-
-        const comment = await Comment.create({
-            text,
-            author:userCommentById,
-            post:postId
-        })
-
-        await comment.populate({
-            path:'author',
-            select:"username profileImage"
+        if (!post) {
+          return res.status(404).json({ success: false, message: 'Post not found.' });
+        }
+    
+        // Create a new comment
+        const newComment = new Comment({
+          content,
+          author: userId,   // Assuming Comment has an `author` field for the user
+          post: postId      // Link comment to the specific post
         });
-        
-        post.comments.push(comment._id);
+    
+        // Save the comment to the database
+        await newComment.save();
+    
+        // Add the comment ID to the post's comments array
+        post.comments.push(newComment._id);
         await post.save();
-
-        return res.status(201).json({
-            message:'Comment Added',
-            comment,
-            success:true
-        })
-    } catch (error) {
-     console.log(error);
-        
-    }
+    
+        // Return the newly created comment
+        res.status(201).json({
+          success: true,
+          comment: newComment,
+          message: "Comment posted successfully"
+        });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Server error' });
+      }
 }
 
 export const getCommentsOfPost = async (req,res) => {

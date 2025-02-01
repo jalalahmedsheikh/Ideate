@@ -2,6 +2,7 @@ import { User } from "../models/user.model.js";
 import bcrypt from 'bcrypt'; // For password hashing
 import { generateToken } from "../utills/genrateToken.js";
 import { deleteMediaFromCloudinary, uploadMedia } from "../utills/cloudinary.js";
+import mongoose from "mongoose";
 
 // 1. Register User: Registers a new user with location, category, and other details.
 export const register = async (req, res) => {
@@ -50,6 +51,22 @@ export const register = async (req, res) => {
       success: false,
       message: "Internal server error.",
     });
+  }
+};
+
+export const checkUsernameAvailability = async (req, res) => {
+  try {
+    const { username } = req.body;
+    const user = await User.findOne({ username });
+
+    if (user) {
+      return res.status(400).json({ available: false }); // Username is taken
+    }
+
+    return res.status(200).json({ available: true }); // Username is available
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ available: false });
   }
 };
 
@@ -134,7 +151,7 @@ export const getUserProfile = async (req, res) => {
 
 export const getSingleUser = async (req, res) => {
   try {
-    const userId = req.params.userId;  // Ensure you are using req.params for route parameters
+    const userId = req.params.id;  // Ensure you are using req.params for route parameters
     
     // Check if userId is undefined
     if (!userId) {

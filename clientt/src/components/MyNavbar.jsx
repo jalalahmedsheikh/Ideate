@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie"; // Make sure to install js-cookie via npm
 import axios from "axios"; // You may need to install axios
-import { FaUserCircle } from "react-icons/fa";
+import { FaChevronLeft, FaSearch, FaUserCircle } from "react-icons/fa";
 import verifiedBadge from '../assets/images/verified.png';  // Import the verified badge image
+import TopbarMobile from "./TopbarMobile";
 
 export default function MyNavbar() {
   const location = useLocation();
@@ -51,6 +52,7 @@ export default function MyNavbar() {
   return (
     <>
       {/* Navbar for desktop and tablets (left-side navbar) */}
+      <TopbarMobile></TopbarMobile>
       <nav
         className="navbar navbar-dark bg-dark d-none d-md-flex flex-column position-fixed vh-100 shadow"
         style={{ width: "300px" }}

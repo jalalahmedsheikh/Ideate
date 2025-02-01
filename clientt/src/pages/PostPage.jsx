@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { FaUserCircle, FaRegHeart, FaHeart, FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import verifiedBadge from '../assets/images/verified.png';
+import AddComment from '../components/AddComment';
 
 const theme = {
   primary: 'rgb(40, 0, 65)',
@@ -175,29 +176,18 @@ const PostPage = () => {
 
       {/* Display all comments */}
       <div style={styles.commentsList}>
-        {comments.map((comment, index) => (
+        {comments.length > 0 ?comments.map((comment, index) => (
           <div key={index} style={styles.commentItem}>
-            <strong>{comment.author.username}</strong>: {comment.content}
-            <br />
-            <small>{formatTimeAgo(comment.createdAt)}</small>
+          <strong>{comment.author.username}</strong>: {comment.content}
+          <br />
+          <small>{formatTimeAgo(comment.createdAt)}</small>
           </div>
-        ))}
+        )) :<p className='text-center'>No comments in this post yet.</p>
+      }
       </div>
 
       {/* Comment Section */}
-      <div style={styles.commentSection}>
-        <form onSubmit={handleCommentSubmit} style={styles.commentForm}>
-          <textarea
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-            placeholder="Add a comment..."
-            style={styles.commentInput}
-          />
-          <button type="submit" style={styles.commentButton}>
-            Post Comment
-          </button>
-        </form>
-      </div>
+      <AddComment></AddComment>
     </div>
   );
 };

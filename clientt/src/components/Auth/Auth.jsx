@@ -7,16 +7,36 @@ const Auth = ({ setLoginUser }) => {
   const [isLogin, setIsLogin] = useState(true); // Toggle between Login and Signup
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [usernameAvailability, setUsernameAvailability] = useState(null); // Track username availability status
   const [user, setUser] = useState({
     username: '',
     email: '',
     password: ''
   });
 
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value } = e.target;
     setUser({ ...user, [name]: value });
     setError(''); // Clear error on input change
+
+    // Check if the input field is 'username' and validate it
+    if (name === 'username') {
+      try {
+        if (value) {
+          const response = await axios.post('http://localhost:8000/user/check-username', { username: value });
+          if (response.data.available) {
+            setUsernameAvailability(true); // Username is available
+          } else {
+            setUsernameAvailability(false); // Username is not available
+          }
+        } else {
+          setUsernameAvailability(null); // Clear when input is empty
+        }
+      } catch (err) {
+        console.error("Error checking username:", err);
+        setUsernameAvailability(false); // Default to unavailable on error
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -41,9 +61,6 @@ const Auth = ({ setLoginUser }) => {
         // Optionally, you could decode the token to get user data
         setLoginUser(response.data.user); // Set logged-in user from the response
         navigate('/'); // Redirect to home
-        response.setHeader('Set-Cookie', 'token=somevalue; HttpOnly; Path=/');
-        console.log(response.getHeaders());  // Log the headers to check if the token is set
-
       } else {
         alert('Signup successful! You can now log in.');
         setIsLogin(true); // Switch to login view
@@ -88,6 +105,11 @@ const Auth = ({ setLoginUser }) => {
                   onChange={handleChange}
                   placeholder="Enter your name"
                 />
+                {usernameAvailability !== null && (
+                  <small className={`form-text ${usernameAvailability ? 'text-success' : 'text-danger'}`}>
+                    {usernameAvailability ? 'Username is available' : 'Username is already taken'}
+                  </small>
+                )}
               </div>
             )}
 
@@ -123,7 +145,7 @@ const Auth = ({ setLoginUser }) => {
 
             <button
               type="submit"
-              className={`btn btn-dark w-100 ${loading ? 'disabled' : ''}`}
+              className={`btn btn-dark w-100 ${loading || (usernameAvailability === false && !isLogin) ? 'disabled' : ''}`}
             >
               {loading
                 ? isLogin

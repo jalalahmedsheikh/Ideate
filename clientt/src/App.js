@@ -12,6 +12,7 @@ import Cookies from 'js-cookie'; // We'll use js-cookie to read cookies
 import EditProfile from './pages/EditProfile';
 import OtherUserProfilePage from './pages/OtherUserProfilePage';
 import PostPage from './pages/PostPage';
+import Search from './pages/Search';
 
 function App() {
   const [user, setLoginUser] = useState(null);
@@ -45,6 +46,7 @@ function App() {
             <Route path="/editprofile" element={<ProtectedRoute element={<EditProfile />} />} />
             <Route path='/profile/:id' element={<OtherUserProfilePage />}/>
             <Route path="/post/:id" element={<PostPage />} />
+            <Route path="/search" element={<Search />} /> {/* Search Page */}
 
           </Route>
 

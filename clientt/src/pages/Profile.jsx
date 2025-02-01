@@ -268,14 +268,16 @@ export default function ProfilePage() {
       activeTab === "My Ideas"
         ? userPosts
         : activeTab === "Liked"
-        ? likedPosts
-        : taggedPosts;
+          ? likedPosts
+          : taggedPosts;
 
     return postsData.map((post) => (
-      <Card key={post._id}>
-        <p className="user-select-none">{post.caption.slice(0, 15) + `...` || "No caption"}</p>
-        {/* You can add more details from the post object here */}
-      </Card>
+      <Link className="user-select-none text-decoration-none py-5 text-white" to={`/post/${post._id}`}>
+        <Card key={post._id}>
+          <p className="user-select-none">{post.caption.length > 15 ? `${post.caption.slice(0, 15)}...` : post.caption}</p>
+          {/* You can add more details from the post object here */}
+        </Card>
+      </Link>
     ));
   };
 
@@ -303,7 +305,7 @@ export default function ProfilePage() {
                     alt="Verified"
                     style={{ width: '25px', height: '20px', marginLeft: '5px', verticalAlign: 'middle' }}
                   />
-                )}{ user.username == "ahmed" ? <sup style={{fontSize: "x-small"}} className="text-secondary bg-white p-1 opacity-50 rounded">Owner</sup> : ""}
+                )}{user.username == "ahmed" ? <sup style={{ fontSize: "x-small" }} className="text-secondary bg-white p-1 opacity-50 rounded">Owner</sup> : ""}
               </a>
             </h4>
             <p>{user.bio}</p>
@@ -318,7 +320,7 @@ export default function ProfilePage() {
           </Info>
           <Stats>
             <a href="" className="user-select-none text-center text-decoration-none text-white">
-              <span>{ user.username == "ahmed" ? `${5.2 + user.followers.length}M` : user.followers.length}</span>
+              <span>{user.username == "ahmed" ? `${5.2 + user.followers.length}M` : user.followers.length}</span>
               <p>Followers</p>
             </a>
             <a href="" className="user-select-none text-center text-decoration-none text-white">

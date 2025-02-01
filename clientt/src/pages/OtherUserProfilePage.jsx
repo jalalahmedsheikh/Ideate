@@ -127,8 +127,8 @@ const TabsHeader = styled.div`
 const Content = styled(motion.div)`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 1rem;
-  padding: 0 2rem;
+  gap: 0.8rem;
+  padding: 0 1rem;
 
   @media (max-width: 768px) {
     grid-template-columns: repeat(3, 1fr);  // 3 items per row on mobile devices
@@ -138,10 +138,11 @@ const Content = styled(motion.div)`
 const Card = styled.div`
   background: #000;
   border-radius: 10px;
-  padding: 1rem;
+  padding: 0.6rem;
   color: white;
   position: relative;
   height: 150px;
+  width: 90px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -153,22 +154,22 @@ const Card = styled.div`
 `;
 
 export default function OtherUserProfilePage() {
-  const { userId } = useParams();  // Get userId from URL params
+  const { id } = useParams(); // Retrieve the User ID from the URL
   const [user, setUser] = useState(null);  // Store user data
   const [userPosts, setUserPosts] = useState([]);  // Store posts data
   const [error, setError] = useState(null);  // Store any error messages
-  const [activeTab, setActiveTab] = useState("My Creations");
-  console.log(userId);
-  
-  
+  const [activeTab, setActiveTab] = useState("Creations");
+  console.log(id);
+
+
 
   useEffect(() => {
     // Fetch profile data for the other user
     const fetchProfile = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/user/profile/${userId}`);  // API to get other user's profile
+        const response = await axios.get(`http://localhost:8000/user/profile/${id}`);  // API to get other user's profile
         setUser(response.data.user);  // Set user data in sta
-        
+
       } catch (err) {
         if (err.response && err.response.status === 404) {
           setError('User not found.');
@@ -181,7 +182,7 @@ export default function OtherUserProfilePage() {
     // Fetch the other user's posts
     const fetchUserPosts = async () => {
       try {
-        const response = await axiosInstance.get(`http://localhost:8000/post/userpost/all/${userId}`);  // API to get user posts
+        const response = await axiosInstance.get(`http://localhost:8000/post/userpost/all/${id}`);  // API to get user posts
         setUserPosts(response.data.posts);  // Set posts data in state
       } catch (err) {
         console.error("Error fetching user posts:", err);
@@ -190,7 +191,7 @@ export default function OtherUserProfilePage() {
 
     fetchProfile();
     fetchUserPosts();  // Fetch posts when the component mounts
-  }, [userId]);  // Dependency array includes userId so the effect runs when userId changes
+  }, [id]);  // Dependency array includes userId so the effect runs when userId changes
 
   if (error) {
     return (
@@ -264,20 +265,22 @@ export default function OtherUserProfilePage() {
     );
   }
 
-  const tabs = ["My Creations", "Liked", "Saved"];
+  const tabs = ["Creations", "Liked", "Saved"];
 
   const renderContent = () => {
     const postsData =
-      activeTab === "My Creations"
+      activeTab === "Creations"
         ? userPosts
         : activeTab === "Liked"
-        ? []
-        : [];
+          ? []
+          : [];
 
     return postsData.map((post) => (
       <Card key={post._id}>
-        <p className="user-select-none">{post.caption.slice(0, 15) + `...` || "No caption"}</p>
-        {/* You can add more details from the post object here */}
+        <Link className="user-select-none text-decoration-none py-5 text-white" to={`/post/${post._id}`}>
+          <p className="user-select-none">{post.caption.length > 15 ? `${post.caption.slice(0, 15)}...` : post.caption}</p>
+          {/* You can add more details from the post object here */}
+        </Link>
       </Card>
     ));
   };
