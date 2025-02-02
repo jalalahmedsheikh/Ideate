@@ -3,7 +3,7 @@ import axiosInstance from './axiosInstance';
 import styled, { createGlobalStyle, ThemeProvider } from "styled-components";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { motion } from "framer-motion";
-import { FaUserCircle } from "react-icons/fa";
+import { FaCog, FaCogs, FaUserCircle, FaUserCog } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import verifiedBadge from '../assets/images/verified.png';  // Import the verified badge image
 
@@ -184,9 +184,19 @@ export default function ProfilePage() {
       }
     };
 
+    // Fetch the logged-in user's posts
+    const ppp = async () => {
+      try {
+        const response = await axiosInstance.get('http://localhost:8000/post/userpost/all');  // API to get user posts
+        setUserPosts(response.data.posts);  // Set posts data in state
+      } catch (err) {
+        console.error("Error fetching user posts:", err);
+      }
+    };
+
     fetchProfile();
     fetchUserPosts();  // Fetch posts when the component mounts
-  }, []);  // Empty dependency array ensures this runs only once after the component mounts
+  }, [user]);  // Empty dependency array ensures this runs only once after the component mounts
 
   if (error) {
     return (
@@ -206,6 +216,11 @@ export default function ProfilePage() {
           <GlobalStyles />
           {/* Profile Header */}
           <HeaderContainer>
+          <div className="w-100 d-flex justify-content-end">
+            <Link to={''} className="text-decoration-none text-white">
+              <FaCog style={{ width: '25px', height: '25px' }} className="float-end" />
+            </Link>
+          </div>
             <h4 className="mb-5 text-uppercase ">
               <a href="" className="text-decoration-none text-white text-center">
                 name
@@ -262,22 +277,30 @@ export default function ProfilePage() {
 
   // Render the user profile data once it's loaded
   const tabs = ["My Ideas", "Liked", "Saved"];
+  const soonTab = { caption: 'Comming soon' }
+
 
   const renderContent = () => {
     const postsData =
       activeTab === "My Ideas"
         ? userPosts
         : activeTab === "Liked"
-          ? likedPosts
-          : taggedPosts;
+          ? [soonTab]
+          : activeTab === "Saved"
+            ? [soonTab]
+            : [];
 
     return postsData.map((post) => (
-      <Link className="user-select-none text-decoration-none py-5 text-white" to={`/post/${post._id}`}>
-        <Card key={post._id}>
-          <p className="user-select-none">{post.caption.length > 15 ? `${post.caption.slice(0, 15)}...` : post.caption}</p>
-          {/* You can add more details from the post object here */}
-        </Card>
-      </Link>
+      <>
+        {post.caption === 'Comming soon' ? <p className="user-select-none text-center mt-5">{post.caption}</p> :
+          <Card key={post._id}>
+            <Link className="user-select-none text-decoration-none py-5 text-white" to={`/post/${post._id}`}>
+              <p className="user-select-none">{post.caption.length > 15 ? `${post.caption.slice(0, 15)}...` : post.caption}</p>
+              {/* You can add more details from the post object here */}
+            </Link>
+          </Card>
+        }
+      </>
     ));
   };
 
@@ -287,11 +310,16 @@ export default function ProfilePage() {
         <GlobalStyles />
         {/* Profile Header */}
         <HeaderContainer>
-          <h4 className="mb-5 text-uppercase ">
-            <a href="" className="text-decoration-none text-white text-center">
-              {user.name || "Unknown"}
-            </a>
-          </h4>
+          <div className="w-100 d-flex justify-content-end">
+            <Link to={'/settings'} className="text-decoration-none text-white">
+              <FaCog style={{ width: '25px', height: '25px' }} className="float-end" />
+            </Link>
+          </div>
+            <div className="w-100 text-center mb-5">
+              <a href="" className="text-decoration-none text-uppercase text-white">
+                {user.name || "Unknown"}
+              </a>
+            </div>
           <Avatar>
             <FaUserCircle />
           </Avatar>
@@ -310,7 +338,7 @@ export default function ProfilePage() {
             </h4>
             <p>{user.bio}</p>
             <Link
-              to={'/editprofile'}
+              to={'/settings'}
               className="w-100 btn rounded-pill text-white border-light px-3"
               style={{ backgroundColor: theme.primary }}
             >
@@ -320,7 +348,7 @@ export default function ProfilePage() {
           </Info>
           <Stats>
             <a href="" className="user-select-none text-center text-decoration-none text-white">
-              <span>{user.username == "ahmed" ? `${5.2 + user.followers.length}M` : user.followers.length}</span>
+              <span>{user.followers.length}</span>
               <p>Followers</p>
             </a>
             <a href="" className="user-select-none text-center text-decoration-none text-white">

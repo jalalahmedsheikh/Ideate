@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { FaUserCircle, FaRegHeart, FaHeart, FaBookmark, FaRegBookmark } from 'react-icons/fa';
+import { FaUserCircle, FaRegHeart, FaHeart, FaBookmark, FaRegBookmark, FaEllipsisV, FaEdit, FaTrash, FaFlag } from 'react-icons/fa';
 import verifiedBadge from '../assets/images/verified.png';
 import AddComment from '../components/AddComment';
 
@@ -131,8 +131,17 @@ const PostPage = () => {
               />
             )}
           </Link>
-          <div style={styles.footer}>
-            <span>{formatTimeAgo(post.createdAt)}</span> {/* Display the formatted time */}
+        </div>
+        <div style={{ minWidth: '150px' }}>
+          <div className='w-100 d-flex justify-content-end mb-2'>
+            <FaEllipsisV className="" />
+          </div>
+          <div className="menu bg-white text-dark rounded-bottom rounded-start p-2 d-none">
+            <ul className=" list-group">
+              <li className=" text-decoration-none list-unstyled fs-5"><FaEdit /> Edit Post</li><hr />
+              <li className=" text-decoration-none list-unstyled fs-5"><FaTrash />Delete Post</li><hr />
+              <li className=" text-decoration-none list-unstyled fs-5"><FaFlag/> Report Post</li>
+            </ul>
           </div>
         </div>
       </div>
@@ -176,14 +185,14 @@ const PostPage = () => {
 
       {/* Display all comments */}
       <div style={styles.commentsList}>
-        {comments.length > 0 ?comments.map((comment, index) => (
+        {comments.length > 0 ? comments.map((comment, index) => (
           <div key={index} style={styles.commentItem}>
-          <strong>{comment.author.username}</strong>: {comment.content}
-          <br />
-          <small>{formatTimeAgo(comment.createdAt)}</small>
+            <strong>{comment.author.username}</strong>: {comment.content}
+            <br />
+            <small>{formatTimeAgo(comment.createdAt)}</small>
           </div>
-        )) :<p className='text-center'>No comments in this post yet.</p>
-      }
+        )) : <p className='text-center'>No comments in this post yet.</p>
+        }
       </div>
 
       {/* Comment Section */}

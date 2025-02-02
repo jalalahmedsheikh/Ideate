@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { FaUserCircle, FaShare, FaEllipsisV } from "react-icons/fa";
+import { FaUserCircle, FaShare, FaEllipsisV, FaEdit, FaTrash, FaFlag } from "react-icons/fa";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { FaBookmark, FaRegBookmark } from "react-icons/fa";
 import { Link, Navigate, useNavigate } from "react-router-dom";
@@ -195,80 +195,92 @@ const Home = () => {
         </div>
       ) : (
         // Display Posts
-        posts.map((post) => (
-          <div key={post.id} style={styles.cardContainer} className="border">
-            <div style={styles.cardHeader}>
-              <Link className=" user-select-none text-decoration-none text-white" to={`/profile/${post.author._id}`} style={styles.username}>
-                <div>
-                  {
-                    post.author.profileImage ? <img src={post.author.profileImage} alt={post.author.username} /> : <FaUserCircle className="fs-1 me-2" />
-                  }
-                </div>
-              </Link>
-              <div className="w-100">
+          posts.map((post) => (
+            <div key={post.id} style={styles.cardContainer} className="border">
+              <div style={styles.cardHeader}>
                 <Link className=" user-select-none text-decoration-none text-white" to={`/profile/${post.author._id}`} style={styles.username}>
-                  {post.author.username || "Ideate-user"}{post.author.isverified ? <img
-                    src={verifiedBadge}
-                    alt="Verified"
-                    style={{ width: '20px', height: '15px', marginLeft: '3px', verticalAlign: 'middle' }}
-                    className=""
-                  /> : ""}
+                  <div>
+                    {
+                      post.author.profileImage ? <img src={post.author.profileImage} alt={post.author.username} /> : <FaUserCircle className="fs-1 me-2" />
+                    }
+                  </div>
                 </Link>
-                <div style={styles.footer}>
-                  <span>{formatTimeAgo(post.createdAt)}</span> {/* Display the formatted time */}
+                <div className="w-100">
+                  <Link className=" user-select-none text-decoration-none text-white" to={`/profile/${post.author._id}`} style={styles.username}>
+                    {post.author.username || "Ideate-user"}{post.author.isverified ? <img
+                      src={verifiedBadge}
+                      alt="Verified"
+                      style={{ width: '20px', height: '15px', marginLeft: '3px', verticalAlign: 'middle' }}
+                      className=""
+                    /> : ""}
+                  </Link>
+                  <div style={styles.footer}>
+                    <span>{formatTimeAgo(post.createdAt)}</span> {/* Display the formatted time */}
+                  </div>
+                </div>
+                <div style={{minWidth:'150px'}}>
+                  <div className='w-100 d-flex justify-content-end mb-2'>
+                    <FaEllipsisV className="" />
+                  </div>
+                  <div className="menu bg-white text-dark rounded-bottom rounded-start p-2 d-none">
+                    <ul className=" list-group">
+                      <li className=" text-decoration-none list-unstyled fs-5"><FaEdit/> Edit Post</li><hr />
+                      <li className=" text-decoration-none list-unstyled fs-5"><FaTrash/> Delete Post</li><hr />
+                      <li className=" text-decoration-none list-unstyled fs-5"><FaFlag/> Report Post</li>
+                    </ul>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div style={styles.cardImage}>
-            <h5>
-                {post.caption.length > 100 ? `${post.caption.slice(0, 100)}...` : post.caption}
-                {post.caption.length > 100 && (
-                  <Link className="user-select-none text-decoration-none py-5" to={`/post/${post._id}`}>
-                    <small className="text-white bg-secondary px-2 rounded">More</small>
-                  </Link>
-                )}
-              </h5>
-            </div>
-            <div style={styles.cardActions} className="user-select-none">
-              <div
-                onClick={() => toggleLike(post._id)}
-                style={{
-                  ...styles.actionButton,
-                  animation: likedPosts[post.id] ? "shake 0.5s ease-in-out" : "none",
-                }}
-              >
-                <span
+              <div style={styles.cardImage}>
+                <h5>
+                  {post.caption.length > 100 ? `${post.caption.slice(0, 100)}...` : post.caption}
+                  {post.caption.length > 100 && (
+                    <Link className="user-select-none text-decoration-none py-5" to={`/post/${post._id}`}>
+                      <small className="text-white bg-secondary px-2 rounded">More</small>
+                    </Link>
+                  )}
+                </h5>
+              </div>
+              <div style={styles.cardActions} className="user-select-none">
+                <div
+                  onClick={() => toggleLike(post._id)}
                   style={{
-                    ...styles.icon,
-                    color: likedPosts[post.id] ? theme.primary : theme.secondary,
+                    ...styles.actionButton,
+                    animation: likedPosts[post.id] ? "shake 0.5s ease-in-out" : "none",
                   }}
                 >
-                  {likedPosts[post.id] ? <FaHeart /> : <FaRegHeart className="text-white" />}
-                </span>
-                <span>{likedPosts[post.id] ? "Liked" : "Like"}</span>
+                  <span
+                    style={{
+                      ...styles.icon,
+                      color: likedPosts[post.id] ? theme.primary : theme.secondary,
+                    }}
+                  >
+                    {likedPosts[post.id] ? <FaHeart /> : <FaRegHeart className="text-white" />}
+                  </span>
+                  <span>{likedPosts[post.id] ? "Liked" : "Like"}</span>
+                </div>
+                <Link style={styles.actionButton} className=" user-select-none text-decoration-none text-white" to={`/post/${post._id}`}>
+                  <span style={styles.icon}><i className="fa-regular fa-comment"></i></span>
+                  <span>Comment</span>
+                </Link>
+                {/* <div style={styles.actionButton}>
+                  <span style={styles.icon}><FaShare /></span>
+                  <span>Share</span>
+                </div> */}
+                <div onClick={() => toggleSave(post._id)} style={styles.actionButton}>
+                  <span style={styles.icon}>
+                    {savedPosts[post.id] ? <FaBookmark /> : <FaRegBookmark />}
+                  </span>
+                  <span>{savedPosts[post.id] ? "Saved" : "Save"}</span>
+                </div>
               </div>
-              <Link style={styles.actionButton} className=" user-select-none text-decoration-none text-white" to={`/post/${post._id}`}>
-                <span style={styles.icon}><i className="fa-regular fa-comment"></i></span>
-                <span>Comment</span>
-              </Link>
-              {/* <div style={styles.actionButton}>
-                <span style={styles.icon}><FaShare /></span>
-                <span>Share</span>
-              </div> */}
-              <div onClick={() => toggleSave(post._id)} style={styles.actionButton}>
-                <span style={styles.icon}>
-                  {savedPosts[post.id] ? <FaBookmark /> : <FaRegBookmark />}
+              <div style={styles.cardContent}>
+                <span style={styles.likesCount}>
+                  {`${post.likes.length} Likes`}
                 </span>
-                <span>{savedPosts[post.id] ? "Saved" : "Save"}</span>
               </div>
             </div>
-            <div style={styles.cardContent}>
-              <span style={styles.likesCount}>
-                {`${post.likes.length} Likes`}
-              </span>
-            </div>
-          </div>
-        ))
+          ))
       )}
     </div>
   );
@@ -327,3 +339,4 @@ const styles = {
 };
 
 export default Home;
+

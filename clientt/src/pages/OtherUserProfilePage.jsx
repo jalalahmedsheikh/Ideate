@@ -127,8 +127,8 @@ const TabsHeader = styled.div`
 const Content = styled(motion.div)`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 0.8rem;
-  padding: 0 1rem;
+  gap: 1rem;
+  padding: 0 2rem;
 
   @media (max-width: 768px) {
     grid-template-columns: repeat(3, 1fr);  // 3 items per row on mobile devices
@@ -138,11 +138,10 @@ const Content = styled(motion.div)`
 const Card = styled.div`
   background: #000;
   border-radius: 10px;
-  padding: 0.6rem;
+  padding: 1rem;
   color: white;
   position: relative;
   height: 150px;
-  width: 90px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -158,7 +157,7 @@ export default function OtherUserProfilePage() {
   const [user, setUser] = useState(null);  // Store user data
   const [userPosts, setUserPosts] = useState([]);  // Store posts data
   const [error, setError] = useState(null);  // Store any error messages
-  const [activeTab, setActiveTab] = useState("Creations");
+  const [activeTab, setActiveTab] = useState("Ideas");
   console.log(id);
 
 
@@ -254,7 +253,7 @@ export default function OtherUserProfilePage() {
           {/* Tabs and Content */}
           <TabsContainer>
             <TabsHeader className="sticky-top">
-              <button>My Creations</button>
+              <button>My Ideas</button>
               <button>Liked</button>
               <button>Saved</button>
             </TabsHeader>
@@ -265,23 +264,31 @@ export default function OtherUserProfilePage() {
     );
   }
 
-  const tabs = ["Creations", "Liked", "Saved"];
+  const tabs = ["Ideas", "Liked", "Saved"];
+  const soonTab = { caption: 'Comming soon' }
+
 
   const renderContent = () => {
     const postsData =
-      activeTab === "Creations"
+      activeTab === "Ideas"
         ? userPosts
         : activeTab === "Liked"
-          ? []
+          ? [soonTab]
+        : activeTab === "Saved"
+          ? [soonTab]
           : [];
 
     return postsData.map((post) => (
-      <Card key={post._id}>
-        <Link className="user-select-none text-decoration-none py-5 text-white" to={`/post/${post._id}`}>
-          <p className="user-select-none">{post.caption.length > 15 ? `${post.caption.slice(0, 15)}...` : post.caption}</p>
-          {/* You can add more details from the post object here */}
-        </Link>
-      </Card>
+      <>
+        {post.caption === 'Comming soon' ? <p className="user-select-none text-center mt-5">{post.caption}</p> :
+          <Card key={post._id}>
+            <Link className="user-select-none text-decoration-none py-5 text-white" to={`/post/${post._id}`}>
+              <p className="user-select-none">{post.caption.length > 15 ? `${post.caption.slice(0, 15)}...` : post.caption}</p>
+              {/* You can add more details from the post object here */}
+            </Link>
+          </Card>
+        }
+      </>
     ));
   };
 
@@ -312,14 +319,13 @@ export default function OtherUserProfilePage() {
                 )}
               </a>
             </h4>
+            <span>A {user.category}</span>
             <p>{user.bio}</p>
             <Link
-              to={'/editprofile'}
               className="w-100 btn rounded-pill text-white border-light px-3"
               style={{ backgroundColor: theme.primary }}
             >
-              Follow{" "}
-              <i className="fa-solid fa-pen ms-1" style={{ fontSize: "15px" }}></i>
+              Follow
             </Link>
           </Info>
           <Stats>

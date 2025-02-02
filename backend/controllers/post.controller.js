@@ -83,13 +83,13 @@ export const getSinglePost = async (req, res) => {
 
         // Find the post by ID, and populate the required fields
         const post = await Post.findById(id)
-            .populate({ path: 'author', select: 'username profileImage isverified' })
+            .populate({ path: 'author', select: '-password' })
             .populate(
                 {
                     path: 'comments', sort: { createdAt: -1 },
                     populate: {
                         path: 'author',
-                        select: 'username profileImage isverified'
+                        select: '-password'
                     }
                 });
 

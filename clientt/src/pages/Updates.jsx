@@ -4,29 +4,29 @@ import { formatDistanceToNow } from 'date-fns'; // To display relative timestamp
 import styled from 'styled-components';
 
 // Sample notification data (replace with real API data)
-// const notifications = [
-//   {
-//     id: 1,
-//     type: 'like',
-//     username: 'user1',
-//     postTitle: 'Awesome dance video!',
-//     timestamp: new Date() - 10000, // 10 seconds ago
-//   },
-//   {
-//     id: 2,
-//     type: 'comment',
-//     username: 'user2',
-//     postTitle: 'Great vlog!',
-//     timestamp: new Date() - 3600000, // 1 hour ago
-//     comment: 'This is amazing!',
-//   },
-//   {
-//     id: 3,
-//     type: 'follow',
-//     username: 'user3',
-//     timestamp: new Date() - 86400000, // 1 day ago
-//   },
-// ];
+const notifications = [
+  {
+    id: 1,
+    type: 'like',
+    username: 'user1',
+    postTitle: 'Awesome dance video!',
+    timestamp: new Date() - 10000, // 10 seconds ago
+  },
+  {
+    id: 2,
+    type: 'comment',
+    username: 'user2',
+    postTitle: 'Great vlog!',
+    timestamp: new Date() - 3600000, // 1 hour ago
+    comment: 'This is amazing!',
+  },
+  {
+    id: 3,
+    type: 'follow',
+    username: 'user3',
+    timestamp: new Date() - 86400000, // 1 day ago
+  },
+];
 
 // Styled components for the Notifications page
 const NotificationsContainer = styled.div`
@@ -127,7 +127,7 @@ const Notifications = () => {
     <NotificationsContainer className='bg-dark'>
       <h1 className='text-center mb-5 sticky-top'>Updates</h1>
       <NotificationsList>
-        {/* {notifications.map((notification) => (
+        {notifications.map((notification) => (
           <NotificationCard key={notification.id}>
             <NotificationInfo>
               <FaUserCircle/>
@@ -157,7 +157,7 @@ const Notifications = () => {
               {notification.type === 'follow' && <FaUserPlus />}
             </ActionIcons>
           </NotificationCard>
-        ))} */}
+        ))}
         <p className='text-center'>All Notifications will show here.</p>
       </NotificationsList>
     </NotificationsContainer>

@@ -13,6 +13,7 @@ import EditProfile from './pages/EditProfile';
 import OtherUserProfilePage from './pages/OtherUserProfilePage';
 import PostPage from './pages/PostPage';
 import Search from './pages/Search';
+import Settings from './pages/Settings';
 
 function App() {
   const [user, setLoginUser] = useState(null);
@@ -43,7 +44,8 @@ function App() {
             <Route path="/create" element={<ProtectedRoute element={<Create />} />} />
             <Route path="/updates" element={<ProtectedRoute element={<Updates />} />} />
             <Route path="/myprofile" element={<ProtectedRoute element={<Profile />} />} />
-            <Route path="/editprofile" element={<ProtectedRoute element={<EditProfile />} />} />
+            {/* <Route path="/editprofile" element={<ProtectedRoute element={<EditProfile />} />} /> */}
+            <Route path="/settings" element={<ProtectedRoute element={<Settings />} />} />
             <Route path='/profile/:id' element={<OtherUserProfilePage />}/>
             <Route path="/post/:id" element={<PostPage />} />
             <Route path="/search" element={<Search />} /> {/* Search Page */}

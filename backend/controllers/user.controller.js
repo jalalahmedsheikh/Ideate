@@ -191,12 +191,25 @@ export const getSingleUser = async (req, res) => {
 };
 
 
-// 5. Update User Profile: Updates the user's profile (including photo and name).
+// 5. Update User Profile: Updates the user's profile .
 export const updateProfile = async (req, res) => {
   try {
-    const userId = req.id;
-    const { name } = req.body;
-    const profilePhoto = req.file;
+    const userId = req.id; // User's ID is stored in the request after authentication
+    const { 
+      name, 
+      username, 
+      email, 
+      bio, 
+      gender, 
+      twitter, 
+      facebook, 
+      instagram, 
+      category, 
+      password, 
+      confirmPassword 
+    } = req.body;
+
+    const profilePhoto = req.file; // Profile photo is expected in the request file
 
     const user = await User.findById(userId);
     if (!user) {
@@ -206,16 +219,56 @@ export const updateProfile = async (req, res) => {
       });
     }
 
-    // Handle profile image update (remove old image from cloud and upload the new one)
-    if (user.profileImage) {
-      const publicId = user.profileImage.split("/").pop().split(".")[0];
-      deleteMediaFromCloudinary(publicId);
+    // Prepare updated data object
+    const updatedData = {};
+
+    // Update fields if provided
+    if (name) updatedData.name = name;
+    if (username) updatedData.username = username;
+    if (email) updatedData.email = email;
+    if (bio) updatedData.bio = bio;
+    if (gender) updatedData.gender = gender;
+    if (twitter) updatedData.socialLinks.twitter = twitter;
+    if (facebook) updatedData.socialLinks.facebook = facebook;
+    if (instagram) updatedData.socialLinks.instagram = instagram;
+    if (category) updatedData.category = category;
+
+    // Handle password update (only if new password is provided and matches confirm password)
+    if (password) {
+      if (password !== confirmPassword) {
+        return res.status(400).json({
+          success: false,
+          message: "Passwords do not match.",
+        });
+      }
+      // Hash the new password before saving
+      const hashedPassword = await bcrypt.hash(password, 10);
+      updatedData.password = hashedPassword;
     }
 
-    const cloudResponse = await uploadMedia(profilePhoto);
-    const photoUrl = cloudResponse.secure_url;
+    // Handle profile image update (only if a new image is provided)
+    if (profilePhoto) {
+      // If the user already has a profile image, delete the old image from Cloudinary
+      if (user.profileImage) {
+        const publicId = user.profileImage.split("/").pop().split(".")[0];
+        deleteMediaFromCloudinary(publicId);
+      }
 
-    const updatedData = { name, profileImage: photoUrl };
+      // Upload the new profile image to Cloudinary
+      const cloudResponse = await uploadMedia(profilePhoto);
+      const photoUrl = cloudResponse.secure_url;
+      updatedData.profileImage = photoUrl;
+    }
+
+    // If no fields are provided, return a response with an appropriate message
+    if (Object.keys(updatedData).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No data to update.",
+      });
+    }
+
+    // Update the user's profile with the new data
     const updatedUser = await User.findByIdAndUpdate(userId, updatedData, { new: true }).select("-password");
 
     return res.status(200).json({
@@ -231,6 +284,7 @@ export const updateProfile = async (req, res) => {
     });
   }
 };
+
 
 // 6. Follow or Unfollow User: Manages following/unfollowing another user.
 export const toggleFollow = async (req, res) => {
@@ -379,6 +433,8 @@ export const toggleFollow = async (req, res) => {
 //     });
 //   }
 // };
+
+
 export const suggestedUsers = async (req, res) => {
   try {
       // Get the logged-in user's ID from the request (assuming it's passed in the request body or JWT token)
