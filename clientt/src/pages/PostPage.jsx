@@ -13,7 +13,7 @@ const theme = {
 const PostPage = () => {
   const { id } = useParams(); // Retrieve the post ID from the URL
   const [post, setPost] = useState(null);
-  const [likedPosts, setLikedPosts] = useState({});
+  const [likedPosts, setLikedPosts] = useState({}); // Initially an empty object
   const [savedPosts, setSavedPosts] = useState({});
   const [commentText, setCommentText] = useState('');
   const [comments, setComments] = useState([]);
@@ -45,11 +45,27 @@ const PostPage = () => {
     fetchComments();
   }, [id]);
 
+  // Retrieve liked posts from localStorage when the component mounts
+  useEffect(() => {
+    const storedLikedPosts = JSON.parse(localStorage.getItem('likedPosts')) || {};
+    setLikedPosts(storedLikedPosts);
+  }, []);
+
+  // Update liked posts in localStorage whenever the liked state changes
+  useEffect(() => {
+    if (Object.keys(likedPosts).length > 0) {
+      localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
+    }
+  }, [likedPosts]);
+
   const toggleLike = (postId) => {
-    setLikedPosts((prevLikedPosts) => ({
-      ...prevLikedPosts,
-      [postId]: !prevLikedPosts[postId],
-    }));
+    setLikedPosts((prevLikedPosts) => {
+      const updatedLikedPosts = {
+        ...prevLikedPosts,
+        [postId]: !prevLikedPosts[postId],
+      };
+      return updatedLikedPosts;
+    });
   };
 
   const toggleSave = (postId) => {
@@ -93,7 +109,6 @@ const PostPage = () => {
 
       const data = await response.json();
       if (data.success) {
-        // Assuming the API response returns the updated list of comments
         setComments((prevComments) => [...prevComments, data.comment]);
         setCommentText(''); // Clear the input field
       } else {
@@ -136,13 +151,6 @@ const PostPage = () => {
           <div className='w-100 d-flex justify-content-end mb-2'>
             <FaEllipsisV className="" />
           </div>
-          <div className="menu bg-white text-dark rounded-bottom rounded-start p-2 d-none">
-            <ul className=" list-group">
-              <li className=" text-decoration-none list-unstyled fs-5"><FaEdit /> Edit Post</li><hr />
-              <li className=" text-decoration-none list-unstyled fs-5"><FaTrash />Delete Post</li><hr />
-              <li className=" text-decoration-none list-unstyled fs-5"><FaFlag/> Report Post</li>
-            </ul>
-          </div>
         </div>
       </div>
       <div style={styles.cardImage}>
@@ -166,7 +174,7 @@ const PostPage = () => {
           </span>
           <span>{likedPosts[post._id] ? 'Liked' : 'Like'}</span>
         </div>
-        <Link style={styles.actionButton} className=" user-select-none text-decoration-none text-white">
+        <Link style={styles.actionButton} className="user-select-none text-decoration-none text-white">
           <span style={styles.icon}>
             <i className="fa-regular fa-comment"></i>
           </span>
@@ -191,12 +199,11 @@ const PostPage = () => {
             <br />
             <small>{formatTimeAgo(comment.createdAt)}</small>
           </div>
-        )) : <p className='text-center'>No comments in this post yet.</p>
-        }
+        )) : <p className='text-center'>No comments in this post yet.</p>}
       </div>
 
       {/* Comment Section */}
-      <AddComment></AddComment>
+      <AddComment />
     </div>
   );
 };
@@ -246,35 +253,6 @@ const styles = {
   },
   likesCount: {
     fontWeight: 'bold',
-  },
-  footer: {
-    fontSize: '12px',
-    color: '#888',
-  },
-  commentSection: {
-    padding: '10px 15px',
-    borderTop: '1px solid #ddd',
-  },
-  commentForm: {
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  commentInput: {
-    padding: '10px',
-    marginBottom: '10px',
-    border: '1px solid #ddd',
-    borderRadius: '5px',
-    minHeight: '40px',
-    fontSize: '14px',
-  },
-  commentButton: {
-    alignSelf: 'flex-start',
-    padding: '5px 15px',
-    backgroundColor: theme.primary,
-    color: 'white',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
   },
   commentsList: {
     marginTop: '20px',

@@ -7,7 +7,7 @@ export const generateToken = (res, user, message) => {
 
   return res
     .status(200)
-    .cookie('token', token, {
+    .cookie('token', token,user._id, {
       httpOnly: false,
       sameSite: 'None',
       path: "/",

@@ -206,91 +206,50 @@ export const getUserPosts = async (req, res) => {
     }
   };
   
-
-export const likePost = async (req, res) => {
+  export const toggleLikePost = async (req, res) => {
     try {
-        const userLikeById = req.id
-        const postId = req.params.id
-        const post = await Post.findById(postId)
-
-        if (!post) {
-            return res.status(404).json({
-                success: false,
-                message: "Post not found"
-            })
-        }
-        // like logic started
-        await post.updateOne({ $addToSet: { likes: userLikeById } })
+      const postId = req.params.id; // Post ID from the URL parameter
+      const userId = req.id; // Logged-in user ID
+  
+      // Find the post by its ID
+      const post = await Post.findById(postId);
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+  
+      // Ensure post.likes is always an array
+      if (!Array.isArray(post.likes)) {
+        post.likes = []; // Fallback to an empty array if post.likes is null or not an array
+      }
+  
+      // Ensure userId is a valid object ID
+      if (!userId) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+  
+      // Check if the user has already liked the post
+      if (post.likes.includes(userId)) {
+        // If the user has liked the post, remove the like (unlike)
+        post.likes = post.likes.filter((like) => {
+          return like && like.toString() !== userId.toString(); // Ensure `like` is valid and not null
+        });
         await post.save();
-
-        // implement socket io for real time notification
-        const user = await User.findById(userLikeById).select('username profileImage')
-
-        const postOwnerId = post.author.toString();
-        if (postOwnerId !== userLikeById) {
-
-            const notification = {
-                type: "like",
-                userId: userLikeById,
-                userDetails: user,
-                postId,
-                message: `Your post "${post.caption.slice(0, 7)}..." was liked by ${user.name || user.username}.`
-            }
-            const postOwnerSocketId = getReceiverSocketId(postOwnerId)
-            io.to(postOwnerSocketId).emit('notification', notification)
-        }
-
-        return res.status(200).json({
-            message: "Post liked",
-            success: true
-        })
-
-    } catch (error) {
-        console.log(error);
-
-    }
-}
-
-
-export const dislikePost = async (req, res) => {
-    try {
-        const userLikeById = req.id
-        const postId = req.params.id
-
-        const post = await Post.findById(postId)
-        if (!post) {
-            return res.status(404).json({
-                success: false,
-                message: "Post not found"
-            })
-        }
-
-        // like logic started
-        await post.updateOne({ $pull: { likes: userLikeById } })
+        return res.status(200).json({ message: "Post unliked successfully", liked: false });
+      } else {
+        // If the user hasn't liked the post, add the like
+        post.likes.push(userId);
         await post.save();
-
-        // implement socket io for real time notification
-        const user = await User.findById(userLikeById).select('username profileImage')
-        const postOwnerId = post.author.toString();
-        if(postOwnerId !== userLikeById){
-            // emit a notification event
-            const notification = {
-                type: 'dislike',
-                userId: userLikeById,
-                userDetails: user,
-                postId,
-                message: `Your post "${post.caption.slice(0, 7)}..." was disliked by ${user.name || user.username}.`
-            }            
-            const postOwnerSocketId = getReceiverSocketId(postOwnerId);
-            io.to(postOwnerSocketId).emit('notification', notification);
-        }
-        return res.status(200).json({message:'Post disliked', success:true});
-
+        return res.status(200).json({ message: "Post liked successfully", liked: true });
+      }
     } catch (error) {
-        console.log(error);
-        
+      console.error(error);
+      res.status(500).json({ message: "Server error" });
     }
-}
+  };
+  
+
+
+
 export const getOtherUserPosts = async (req, res) => {
     const userId  = req.params.id; // Get the userId from URL parameters
     try {
