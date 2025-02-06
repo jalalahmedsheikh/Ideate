@@ -1,5 +1,5 @@
 import { User } from "../models/user.model.js";
-import bcrypt from 'bcrypt'; // For password hashing
+import bcrypt from "bcryptjs"; // For password hashing
 import { generateToken } from "../utills/genrateToken.js";
 import { deleteMediaFromCloudinary, uploadMedia } from "../utills/cloudinary.js";
 import mongoose from "mongoose";
