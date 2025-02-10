@@ -1,69 +1,54 @@
-import { Post } from "../models/post.model.js";
-import { Poll } from "../models/poll.model.js";
+const express = require('express');
+const mongoose = require('mongoose');
+const router = express.Router();
+const Post = require('../models/Post');
+const User = require('../models/User');
 
-const getTrendingPostsPolls = async (req, res) => {
-    try {
-        const loggedInUserId = req.id;
-
-        // Use aggregation pipeline to perform all operations at the database level
-        const postsAndPolls = await Promise.all([
-            Post.aggregate([
-                { $match: { author: { $ne: loggedInUserId } } },
-                {
-                    $project: {
-                        type: { $literal: 'post' },
-                        likes: { $size: { $ifNull: ["$likes", []] } },
-                        comments: { $size: { $ifNull: ["$comments", []] } },
-                        createdAt: 1,
-                    }
-                },
-                { $sort: { createdAt: -1 } }
-            ]),
-
-            Poll.aggregate([
-                { $match: { creator: { $ne: loggedInUserId } } },
-                {
-                    $project: {
-                        type: { $literal: 'poll' },
-                        likes: { $size: { $ifNull: ["$likes", []] } },
-                        comments: { $size: { $ifNull: ["$comments", []] } },
-                        createdAt: 1,
-                    }
-                },
-                { $sort: { createdAt: -1 } }
-            ])
-        ]);
-
-        // Combine posts and polls
-        const combined = [...postsAndPolls[0], ...postsAndPolls[1]];
-
-        // Map combined results and calculate engagement scores
-        const scored = combined.map((item) => {
-            const ageInMilliseconds = Date.now() - new Date(item.createdAt).getTime();
-            const ageInHours = ageInMilliseconds / (1000 * 60 * 60);
-
-            // Calculate the engagement score based on likes and comments
-            const engagementScore = (
-                item.likes * 2 + item.comments * 3
-            ) / (ageInHours + 1);
-
-            return { item, score: engagementScore };
-        });
-
-        // Sort by score in descending order
-        const sorted = scored.sort((a, b) => b.score - a.score).map(({ item }) => item);
-
-        return res.status(200).json({
-            success: true,
-            data: sorted,
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            success: false,
-            message: "Failed to fetch posts and polls.",
-        });
-    }
+// Helper function to calculate post score
+const calculatePostScore = (post) => {
+    const engagementScore = (post.likes * 1) + (post.comments * 2) + (post.shares * 3);
+    const timeDecay = Math.exp(-0.00001 * (Date.now() - post.createdAt));
+    return engagementScore * timeDecay;
 };
 
-export default getTrendingPostsPolls;
+// Feed API Route
+router.get('/api/feed/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+
+        // Fetch user details (interests & seen posts)
+        const user = await User.findById(userId).select("interests seenPosts");
+
+        // Step 1: Get recommended posts based on user interests
+        const recommendedPosts = await Post.find({ categories: { $in: user.interests } }).limit(10);
+
+        // Step 2: Get trending posts (high engagement in a short time)
+        const trendingPosts = await Post.find().sort({ 
+            createdAt: -1, 
+            trendingScore: -1 
+        }).limit(5);
+
+        // Step 3: Get recent posts (excluding seen posts)
+        const freshPosts = await Post.find({ _id: { $nin: user.seenPosts } })
+            .sort({ createdAt: -1 })
+            .limit(10);
+
+        // Combine posts and remove duplicates
+        let feedPosts = [...recommendedPosts, ...trendingPosts, ...freshPosts];
+        feedPosts = Array.from(new Set(feedPosts.map(p => p._id.toString()))).map(id => feedPosts.find(p => p._id.toString() === id));
+
+        // Step 4: Rank posts using weighted score
+        feedPosts.sort((a, b) => calculatePostScore(b) - calculatePostScore(a));
+
+        // Update user's seen posts (store last 50)
+        user.seenPosts = [...new Set([...user.seenPosts, ...feedPosts.map(p => p._id)])].slice(-50);
+        await user.save();
+
+        res.json(feedPosts);
+    } catch (error) {
+        console.error("Error fetching feed:", error);
+        res.status(500).json({ error: "Error fetching feed" });
+    }
+});
+
+module.exports = router;
